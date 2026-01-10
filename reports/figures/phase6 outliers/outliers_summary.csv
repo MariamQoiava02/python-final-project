@@ -1,0 +1,5 @@
+variable,lower_bound,upper_bound,count_below,count_above,total_count,pct_below,pct_above
+ApplicantIncome,-1498.75,10171.25,0,0,614,0.0,0.0
+CoapplicantIncome,-3445.875,5743.125,0,0,614,0.0,0.0
+TotalIncome,-763.75,12382.25,0,13,614,0.0,2.1172638436482085
+LoanAmount,3.5,261.5,0,0,614,0.0,0.0

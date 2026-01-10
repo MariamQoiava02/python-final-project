@@ -553,3 +553,108 @@ def demographic_patterns_data(df: pd.DataFrame, output_dir: str) -> None:
     plot_approval_rate_by_property_area(df, demographic_data_dir)
 
     print("Demographic Pattern Analysis completed. Figures saved to:", demographic_data_dir)
+
+def _iqr_bounds(series: pd.Series):
+    """
+    Return lower and upper bounds using the IQR rule.
+    """
+    q1 = series.quantile(0.25)
+    q3 = series.quantile(0.75)
+    iqr = q3 - q1
+    lower = q1 - 1.5 * iqr
+    upper = q3 + 1.5 * iqr
+    return lower, upper
+
+def plot_boxplot_for_columns(df: pd.DataFrame, columns: list, output_dir: str) -> None:
+    """
+    Create one combined boxplot figure for the provided columns.
+    Saves: outliers_boxplots.png
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Ensure columns exist
+    for col in columns:
+        if col not in df.columns:
+            raise KeyError(f"{col} column not found in DataFrame.")
+
+    values = [df[col].values for col in columns]
+
+    plt.figure(figsize=(10, 6))
+    bp = plt.boxplot(values, labels=columns, patch_artist=True, vert=False)
+    # style boxes
+    for box in bp["boxes"]:
+        box.set_facecolor(BAR_COLOR)
+        box.set_edgecolor("black")
+
+    plt.title("Boxplots — Income and Loan Amount (outliers shown as fliers)", fontsize=14, pad=12)
+    plt.xlabel("Amount", fontsize=11)
+    plt.grid(axis="x", alpha=GRID_ALPHA)
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "outliers_boxplots.png"))
+    plt.close()
+
+def plot_individual_boxplots(df: pd.DataFrame, columns: list, output_dir: str) -> None:
+    """
+    Create one simple boxplot per variable and save separately for inspection.
+    Saves: outlier_box_<column>.png for each column.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    for col in columns:
+        plt.figure(figsize=(8, 2.5))
+        plt.boxplot(df[col].values, vert=False, patch_artist=True)
+        plt.title(f"Boxplot — {col}", fontsize=12)
+        plt.xlabel(col, fontsize=10)
+        plt.grid(axis="x", alpha=GRID_ALPHA)
+        plt.tight_layout()
+        filename = f"outlier_box_{col}.png"
+        plt.savefig(os.path.join(output_dir, filename))
+        plt.close()
+
+def save_outlier_summary(df: pd.DataFrame, columns: list, output_dir: str) -> None:
+    """
+    Compute IQR bounds and counts of points below/above bounds for each column.
+    Save a CSV summary as outliers_summary.csv.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    rows = []
+    for col in columns:
+        series = df[col]
+        lower, upper = _iqr_bounds(series)
+        below = int((series < lower).sum())
+        above = int((series > upper).sum())
+        total = int(series.size)
+        rows.append({
+            "variable": col,
+            "lower_bound": float(lower),
+            "upper_bound": float(upper),
+            "count_below": below,
+            "count_above": above,
+            "total_count": total,
+            "pct_below": below / total * 100.0,
+            "pct_above": above / total * 100.0,
+        })
+
+    summary = pd.DataFrame(rows)
+    summary.to_csv(os.path.join(output_dir, "outliers_summary.csv"), index=False)
+
+def run_phase6_outliers(df: pd.DataFrame, output_dir: str) -> None:
+    """
+    Runner for Phase 6 — Outliers and Edge Cases.
+    Produces:
+      - outliers_boxplots.png (combined)
+      - outlier_box_<column>.png (individual)
+      - outliers_summary.csv (IQR bounds and counts)
+    """
+    print("Running Phase 6 — Outliers and Edge Cases...")
+
+    cols = ["ApplicantIncome", "CoapplicantIncome", "TotalIncome", "LoanAmount"]
+
+    phase6_dir = os.path.join(output_dir, "phase6 outliers")
+
+    plot_boxplot_for_columns(df, cols, phase6_dir)
+    plot_individual_boxplots(df, cols, phase6_dir)
+    save_outlier_summary(df, cols, phase6_dir)
+
+    print("Phase 6 outputs saved to:", output_dir)
