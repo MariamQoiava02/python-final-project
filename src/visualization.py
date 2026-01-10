@@ -251,3 +251,124 @@ def run_phase3_household_analysis(df: pd.DataFrame, output_dir: str) -> None:
         raise
 
 # -----------------------end phase 3----------------------------------------
+
+
+
+
+# ----------------- PHASE 5: Demographic and Structural Patterns ----------------- #
+# - Approval rates by Education
+# - Approval rates by Property_Area
+# Both charts annotate sample size and median TotalIncome per group to give a simple
+# relative comparison to a financial variable.
+
+def plot_approval_rate_by_education(df: pd.DataFrame, output_dir: str) -> None:
+    """
+    Bar chart: approval rate (%) by Education.
+    Annotates each bar with percent, sample size , and median TotalIncome.
+    Saves: approval_rate_by_education.png
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    if "Education" not in df.columns or "Loan_Status" not in df.columns or "TotalIncome" not in df.columns:
+        raise KeyError("Education, Loan_Status and/or TotalIncome column not found in DataFrame.")
+
+    approved = _is_approved(df["Loan_Status"])
+
+    table = df[["Education", "TotalIncome"]].copy()
+    table["approved"] = approved
+
+    # Group and aggregate
+    agg = table.groupby("Education").agg(
+        total=("approved", "size"),
+        approved_count=("approved", "sum"),
+        median_income=("TotalIncome", "median"),
+    )
+    agg["approval_rate"] = agg["approved_count"] / agg["total"] * 100
+
+    # Sort labels alphabetically (keeps code simple)
+    agg = agg.sort_index()
+
+    # Plot
+    plt.figure(figsize=(9, 5))
+    labels = [str(x) for x in agg.index]
+    values = agg["approval_rate"].values
+    plt.bar(labels, values, color=BAR_COLOR, edgecolor="black")
+    plt.title("Approval Rate by Education", fontsize=14, pad=12)
+    plt.xlabel("Education", fontsize=11)
+    plt.ylabel("Approval Rate (%)", fontsize=11)
+    plt.ylim(0, 100)
+    plt.grid(axis="y", alpha=GRID_ALPHA)
+
+    # Annotate percent, n, and median income
+    for i, (label, row) in enumerate(agg.iterrows()):
+        pct = row["approval_rate"]
+        n = int(row["total"])
+        med = int(row["median_income"])
+        plt.text(i, pct + 1.5, f"{pct:.1f}%\n(n={n})\nmedian income: {med:,}", ha="center", va="bottom", fontsize=9)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "approval_rate_by_education.png"))
+    plt.close()
+
+
+def plot_approval_rate_by_property_area(df: pd.DataFrame, output_dir: str) -> None:
+    """
+    Bar chart: approval rate (%) by Property_Area.
+    Annotates each bar with percent, sample size , and median TotalIncome.
+    Saves: approval_rate_by_property_area.png
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    if "Property_Area" not in df.columns or "Loan_Status" not in df.columns or "TotalIncome" not in df.columns:
+        raise KeyError("Property_Area, Loan_Status and/or TotalIncome column not found in DataFrame.")
+
+    approved = _is_approved(df["Loan_Status"])
+
+    table = df[["Property_Area", "TotalIncome"]].copy()
+    table["approved"] = approved
+
+    # Group and aggregate
+    agg = table.groupby("Property_Area").agg(
+        total=("approved", "size"),
+        approved_count=("approved", "sum"),
+        median_income=("TotalIncome", "median"),
+    )
+    agg["approval_rate"] = agg["approved_count"] / agg["total"] * 100
+
+    # Sort labels alphabetically
+    agg = agg.sort_index()
+
+    # Plot
+    plt.figure(figsize=(9, 5))
+    labels = [str(x) for x in agg.index]
+    values = agg["approval_rate"].values
+    plt.bar(labels, values, color=BAR_COLOR, edgecolor="black")
+    plt.title("Approval Rate by Property Area", fontsize=14, pad=12)
+    plt.xlabel("Property Area", fontsize=11)
+    plt.ylabel("Approval Rate (%)", fontsize=11)
+    plt.ylim(0, 100)
+    plt.grid(axis="y", alpha=GRID_ALPHA)
+
+    # Annotate percent, n, and median income
+    for i, (label, row) in enumerate(agg.iterrows()):
+        pct = row["approval_rate"]
+        n = int(row["total"])
+        med = int(row["median_income"])
+        plt.text(i, pct + 1.5, f"{pct:.1f}%\n(n={n})\nmedian income: {med:,}", ha="center", va="bottom", fontsize=9)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "approval_rate_by_property_area.png"))
+    plt.close()
+
+
+def run_phase5_demographics(df: pd.DataFrame, output_dir: str) -> None:
+    """
+    Runner for Phase 5 — Demographic and Structural Patterns.
+    Produces:
+      - approval_rate_by_education.png
+      - approval_rate_by_property_area.png
+    """
+    print("Running Phase 5 — Demographic and Structural Patterns (education, property area)...")
+    plot_approval_rate_by_education(df, output_dir)
+    plot_approval_rate_by_property_area(df, output_dir)
+    print("Phase 5 figures saved to:", output_dir)

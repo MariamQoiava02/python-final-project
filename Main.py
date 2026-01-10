@@ -7,7 +7,7 @@ This script orchestrates data preprocessing, visualization, and modeling.
 
 import os
 from src.data_processing import preprocess_data
-from src.visualization import run_eda, run_phase3_household_analysis
+from src.visualization import run_eda, run_phase3_household_analysis, run_phase5_demographics
 
 
 def main() -> None:
@@ -18,6 +18,7 @@ def main() -> None:
     processed_data_path = "data/processed/loan_data_processed.csv"
     figures_dir = "reports/figures"
     phase3_dir = os.path.join(figures_dir)
+    phase5_dir = os.path.join(figures_dir, "phase5")
 
     try:
         # 1 Preprocess data and get DataFrame
@@ -32,6 +33,9 @@ def main() -> None:
 
         # 3 Run Phase 3 — Household Structure and Support (coapplicant analysis)
         run_phase3_household_analysis(df, phase3_dir)
+
+        # 5 Run Phase 5 — Demographic and Structural Patterns
+        run_phase5_demographics(df, phase5_dir)
 
     except Exception as exc:
         print("An error occurred during execution.")
