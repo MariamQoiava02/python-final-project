@@ -7,7 +7,7 @@ This script orchestrates data preprocessing, visualization, and modeling.
 
 import os
 from src.data_processing import preprocess_data
-from src.visualization import run_eda, run_phase3_household_analysis, run_phase4_loan_term, run_phase5_demographics
+from src.visualization import run_basic_data, run_financial_driver_data, run_phase3_household_analysis, run_phase4_loan_term, run_phase5_demographics
 
 
 def main() -> None:
@@ -29,8 +29,11 @@ def main() -> None:
         )
         print("\nData preprocessing completed successfully.")
 
-        # 2 Run Phase 1 EDA (existing)
-        run_eda(df, figures_dir)
+        # 2 Run Basic Data Analysis
+        run_basic_data(df, figures_dir)
+
+        # 3 Run financial Driver Analysis
+        run_financial_driver_data(df, figures_dir)
 
         # 3 Run Phase 3 — Household Structure and Support (coapplicant analysis)
         run_phase3_household_analysis(df, phase3_dir)

@@ -123,3 +123,17 @@ All data preprocessing steps can be reproduced by running `main.py`. The pipelin
 1. Install dependencies:
 2. Run the main script:
 3. Processed data and generated outputs will be saved to their respective directories.
+
+
+## Exploratory Data Analysis (EDA)
+
+As an initial step, we performed a basic exploratory data analysis to understand the structure and distribution of the dataset before modeling.
+
+The analysis focuses on:
+- The distribution of loan approval outcomes
+- The distribution of total household income
+- The distribution of loan amounts
+
+These visualizations help identify class balance, variable scale, and overall data characteristics, ensuring that subsequent modeling steps are interpreted in the correct context.
+
+All figures generated during EDA are saved in the `reports/figures/` directory.

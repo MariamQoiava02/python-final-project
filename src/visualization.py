@@ -1,11 +1,5 @@
 """
-visualization.py
-
-Basic Exploratory Data Analysis (EDA) for the
-Loan Approval Analysis and Classification project.
-
-This module focuses on understanding data distributions.
-All visualizations follow a consistent green color scheme.
+Visualization
 """
 
 import os
@@ -24,28 +18,12 @@ ACCENT_COLOR = "#7F7F7F"
 NEG_COLOR = "#E57373"
 GRID_ALPHA = 0.3
 
-# for phase 3
-def _is_approved(series: pd.Series) -> pd.Series:
-    """
-    Robust boolean Series of approval based on Loan_Status values.
-    Accepts numeric 1/0, boolean, or common strings ('Y'/'N', 'Yes'/'No').
-    """
-    s = series.copy()
-    # Numeric -> treat 1 as approved
-    if pd.api.types.is_numeric_dtype(s):
-        return s.fillna(0).astype(int) == 1
-    # Boolean type
-    if pd.api.types.is_bool_dtype(s):
-        return s.fillna(False).astype(bool)
-    # Otherwise treat as string-like
-    s = s.astype(str).str.strip().str.upper()
-    return s.str.startswith("Y") | s.str.startswith("T")  # Y / TRUE
-# for phase 3
 
+# Basic data analysis
+
+# Bar chart showing how many loan applications were approved or rejected
 def plot_loan_status_distribution(df: pd.DataFrame, output_dir: str) -> None:
-    """
-    Bar chart showing the distribution of loan approval outcomes.
-    """
+
     os.makedirs(output_dir, exist_ok=True)
 
     plt.figure(figsize=(7, 5))
@@ -68,10 +46,11 @@ def plot_loan_status_distribution(df: pd.DataFrame, output_dir: str) -> None:
     plt.close()
 
 
+
+
+# Histogram showing how total household income is distributed across all loan applicants
 def plot_total_income_distribution(df: pd.DataFrame, output_dir: str) -> None:
-    """
-    Histogram showing the distribution of total household income.
-    """
+
     os.makedirs(output_dir, exist_ok=True)
 
     plt.figure(figsize=(7, 5))
@@ -92,10 +71,10 @@ def plot_total_income_distribution(df: pd.DataFrame, output_dir: str) -> None:
     plt.close()
 
 
+
+# Histogram showing how requested loan amounts are distributed across all loan applications
 def plot_loan_amount_distribution(df: pd.DataFrame, output_dir: str) -> None:
-    """
-    Histogram showing the distribution of loan amount.
-    """
+
     os.makedirs(output_dir, exist_ok=True)
 
     plt.figure(figsize=(7, 5))
@@ -116,24 +95,179 @@ def plot_loan_amount_distribution(df: pd.DataFrame, output_dir: str) -> None:
     plt.close()
 
 
-def run_eda(df: pd.DataFrame, output_dir: str) -> None:
-    """
-    Run basic EDA focused on distributions only.
-    """
-    print("Running basic EDA (distributions only)...")
 
-    plot_loan_status_distribution(df, output_dir)
-    plot_total_income_distribution(df, output_dir)
-    plot_loan_amount_distribution(df, output_dir)
+def run_basic_data(df: pd.DataFrame, output_dir: str) -> None:
+    """
+    Run basic data analysis focused on distributions only.
+    """
 
-    print("EDA completed. Figures saved to:", output_dir)
+    print("Running basic data analysis...")
+
+    basic_data_dir = os.path.join(output_dir, "Basic Data Analysis")
+
+    plot_loan_status_distribution(df, basic_data_dir)
+    plot_total_income_distribution(df, basic_data_dir)
+    plot_loan_amount_distribution(df, basic_data_dir)
+
+    print("Basic Data Analysis completed. Figures saved to:", basic_data_dir)
+
+
+
+# Financial driver analysis
+
+# Scatter plot showing the relationship between total household income and the requested loan amount for each application
+def plot_income_vs_loan_amount(df: pd.DataFrame, output_dir: str) -> None:
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    plt.figure(figsize=(8, 5))
+    plt.scatter(
+        df["TotalIncome"],
+        df["LoanAmount"],
+        alpha=0.6,
+        color=HIST_COLOR
+    )
+
+    plt.title("Household Income vs Loan Amount", fontsize=14, pad=12)
+    plt.xlabel("Total Household Income")
+    plt.ylabel("Loan Amount")
+    plt.grid(alpha=GRID_ALPHA)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "income_vs_loan_amount.png"))
+    plt.close()
+
+
+
+# Grouping applicants by income level and plotting the loan approval rate for each income group using a line chart
+def plot_approval_rate_by_income_group(df: pd.DataFrame, output_dir: str) -> None:
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    df = df.copy()
+    df["Approved"] = (df["Loan_Status"] == "Y").astype(int)
+    df["Income_Group"] = pd.qcut(df["TotalIncome"], q=5)
+
+    approval_rate = (
+        df.groupby("Income_Group", observed=True)["Approved"]
+        .mean()
+    )
+
+    income_labels = [
+        f"{int(interval.left)}–{int(interval.right)}"
+        for interval in approval_rate.index
+    ]
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(
+        income_labels,
+        approval_rate.values,
+        marker="o",
+        linewidth=2,
+        color=HIST_COLOR
+    )
+
+    plt.title(
+        "Loan Approval Rate Across Household Income Ranges",
+        fontsize=14,
+        pad=12
+    )
+    plt.xlabel("Total Household Income Range")
+    plt.ylabel("Approval Rate")
+    plt.ylim(0, 1)
+    plt.grid(alpha=GRID_ALPHA)
+
+    plt.tight_layout()
+    plt.savefig(
+        os.path.join(output_dir, "approval_rate_by_income_range.png")
+    )
+    plt.close()
+
+
+
+# 100% Stacked bar chart showing the percentage of approved and rejected loan applications across different loan amount ranges
+def plot_loan_amount_distribution_by_status_percentage( df: pd.DataFrame, output_dir: str) -> None:
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    df = df.copy()
+
+    # Create loan amount groups
+    df["LoanAmount_Group"] = pd.qcut(df["LoanAmount"], q=5)
+
+    # Count approvals and rejections per group
+    counts = (
+        df.groupby(
+            ["LoanAmount_Group", "Loan_Status"],
+            observed=True
+        )
+        .size()
+        .unstack(fill_value=0)
+    )
+
+    percentages = counts.div(counts.sum(axis=1), axis=0) * 100
+
+    labels = [
+        f"{int(interval.left)}–{int(interval.right)}"
+        for interval in percentages.index
+    ]
+
+    # Plot
+    plt.figure(figsize=(9, 5))
+    plt.bar(
+        labels,
+        percentages["Y"],
+        label="Approved",
+        color="#4CAF50",
+    )
+    plt.bar(
+        labels,
+        percentages["N"],
+        bottom=percentages["Y"],
+        label="Rejected",
+        color="#E57373",
+    )
+
+    plt.title(
+        "Loan Approval vs Rejection Rate by Loan Amount Range",
+        fontsize=14,
+        pad=12,
+    )
+    plt.xlabel("Loan Amount Range")
+    plt.ylabel("Percentage of Applications")
+    plt.ylim(0, 100)
+    plt.legend()
+    plt.grid(axis="y", alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(
+        os.path.join(output_dir, "loan_amount_status_percentage.png")
+    )
+    plt.close()
+
+
+def run_financial_driver_data(df: pd.DataFrame, output_dir: str) -> None:
+    """
+    Run financial driver analysis focused on distributions only.
+    """
+
+    print("Running financial driver analysis...")
+
+    financial_driver_data_dir = os.path.join(output_dir, "Financial Data Analysis")
+
+    plot_income_vs_loan_amount(df, financial_driver_data_dir)
+    plot_approval_rate_by_income_group(df, financial_driver_data_dir)
+    plot_loan_amount_distribution_by_status_percentage(df, financial_driver_data_dir)
+
+    print("Financial Driver Data Analysis completed. Figures saved to:", financial_driver_data_dir)
+
 
 # ----------------- PHASE 3: Household Structure and Support (simplified) ----------------- #
 # - Approval rate bar chart (percentage) for With vs Without coapplicant (kept)
 # - Grouped bar chart showing counts of Yes and No for With vs Without coapplicant (new)
 # No density/KDE or boxplots included per your request.
 
-
+# Approval rate bar chart (percentage) for With vs Without coapplicant (kept)
 def plot_coapplicant_approval_rates(df: pd.DataFrame, output_dir: str) -> None:
     """
     Plot approval rate (%) for applicants WITH and WITHOUT a coapplicant.
