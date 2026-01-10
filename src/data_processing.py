@@ -133,6 +133,60 @@ def create_features(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+def drop_low_importance_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Drop columns that do not contribute meaningful information
+    to analysis or modeling.
+
+    Parameters:
+        df (pd.DataFrame): Input dataset.
+
+    Returns:
+        pd.DataFrame: Dataset with low-importance columns removed.
+    """
+    df = df.copy()
+
+    # Loan_ID is a unique identifier and has no predictive value
+    if "Loan_ID" in df.columns:
+        df.drop(columns=["Loan_ID"], inplace=True)
+
+    return df
+
+def reorder_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Reorder columns to improve readability and logical structure.
+
+    Parameters:
+        df (pd.DataFrame): Input dataset.
+
+    Returns:
+        pd.DataFrame: Dataset with reordered columns.
+    """
+    df = df.copy()
+
+    preferred_order = [
+        "Loan_Status",
+        "ApplicantIncome",
+        "CoapplicantIncome",
+        "TotalIncome",
+        "LoanAmount",
+        "Loan_Amount_Term",
+        "Credit_History",
+        "Gender",
+        "Married",
+        "Dependents",
+        "Education",
+        "Self_Employed",
+        "Property_Area"
+    ]
+
+    # Keep only columns that exist in the dataset
+    existing_columns = [col for col in preferred_order if col in df.columns]
+
+    # Add any remaining columns at the end
+    remaining_columns = [col for col in df.columns if col not in existing_columns]
+
+    return df[existing_columns + remaining_columns]
 
 def preprocess_data(input_path: str, output_path: str) -> pd.DataFrame:
     """
@@ -159,6 +213,8 @@ def preprocess_data(input_path: str, output_path: str) -> pd.DataFrame:
     df = convert_data_types(df)
     df = handle_outliers(df)
     df = create_features(df)
+    df = drop_low_importance_columns(df)
+    df = reorder_columns(df)
 
     df.to_csv(output_path, index=False)
     print("\nProcessed data saved to:", output_path)

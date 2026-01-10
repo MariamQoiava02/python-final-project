@@ -1,43 +1,31 @@
-# Loan Approval Analysis and Classification
-# Basic setup and data loading
+"""
+main.py
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+Main entry point for the Loan Approval Analysis and Classification project.
+This script orchestrates data preprocessing, visualization, and modeling.
+"""
 
-# Ignore warnings for cleaner output
-import warnings
-warnings.filterwarnings("ignore")
+from src.data_processing import preprocess_data
 
-print("Libraries imported successfully")
+def main() -> None:
+    """
+    Run the full data preprocessing pipeline.
 
-# Load the dataset
-df = pd.read_csv("Data/raw/raw.csv")
+    Returns:
+        None
+    """
+    raw_data_path = "data/raw/raw.csv"
+    processed_data_path = "data/processed/loan_data_processed.csv"
 
-# Basic dataset inspection
-print("\nDataset shape (rows, columns):")
-print(df.shape)
+    try:
+        preprocess_data(
+            input_path=raw_data_path,
+            output_path=processed_data_path
+        )
+        print("\nData preprocessing completed successfully.")
+    except Exception as exc:
+        print("An error occurred during preprocessing.")
+        raise exc
 
-print("\nColumn names:")
-print(df.columns.tolist())
-
-print("\nFirst 5 rows:")
-print(df.head())
-
-print("\nData types:")
-print(df.dtypes)
-
-print("\nMissing values per column:")
-print(df.isnull().sum())
-
-
-
-# -------------------------------
-# Exploratory Data Analysis (EDA)
-# -------------------------------
-
-print("\nLoan Status Distribution:")
-print(df["Loan_Status"].value_counts())
-
-print("\nLoan Status Percentage:")
-print(df["Loan_Status"].value_counts(normalize=True) * 100)
+if __name__ == "__main__":
+    main()
