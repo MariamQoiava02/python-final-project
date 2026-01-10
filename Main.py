@@ -7,25 +7,31 @@ This script orchestrates data preprocessing, visualization, and modeling.
 
 from src.data_processing import preprocess_data
 
+
 def main() -> None:
     """
-    Run the full data preprocessing pipeline.
-
-    Returns:
-        None
+    Run the full data preprocessing and Phase 1 EDA pipeline.
     """
     raw_data_path = "data/raw/raw.csv"
     processed_data_path = "data/processed/loan_data_processed.csv"
+    figures_dir = "reports/figures"
 
     try:
-        preprocess_data(
+        # 1 Preprocess data and get DataFrame
+        df = preprocess_data(
             input_path=raw_data_path,
             output_path=processed_data_path
         )
         print("\nData preprocessing completed successfully.")
+
+        # 2️ Run Phase 1 EDA
+        from src.visualization import run_eda
+        run_eda(df, figures_dir)
+
     except Exception as exc:
-        print("An error occurred during preprocessing.")
+        print("An error occurred during execution.")
         raise exc
 
-if __name__ == "__main__":
+
+if _name_ == "_main_":
     main()
