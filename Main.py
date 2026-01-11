@@ -7,7 +7,8 @@ This script orchestrates data preprocessing, visualization, and modeling.
 
 import os
 from src.data_processing import preprocess_data
-from src.visualization import run_basic_data, run_financial_driver_data, run_support_structure_data, run_loan_term_data, demographic_patterns_data, run_outliers_data
+from src.visualization import run_basic_data, run_financial_driver_data, run_support_structure_data, run_loan_term_data, \
+    demographic_patterns_data, run_outliers_data, run_heatmap_data
 
 
 def main() -> None:
@@ -45,10 +46,18 @@ def main() -> None:
         # 7: Outliers Analysis
         run_outliers_data(df, figures_dir)
 
+        # 8: Correlation Heatmap Analysis
+        run_heatmap_data(df, figures_dir)
+
+
+
+
+
 
     except Exception as exc:
         print("An error occurred during execution.")
         raise exc
+
 
 
 if __name__ == "__main__":

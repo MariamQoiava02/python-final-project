@@ -538,6 +538,134 @@ def plot_approval_rate_by_property_area(df: pd.DataFrame, output_dir: str) -> No
 
 
 
+def plot_approved_loans_by_gender(
+    df: pd.DataFrame,
+    output_dir: str
+) -> None:
+    """
+    Pie chart showing gender distribution among approved loans
+    using a green color palette.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    approved_df = df[df["Loan_Status"] == "Y"]
+    counts = approved_df["Gender"].value_counts()
+
+    # Green color palette
+    colors = ["#2E7D32", "#66BB6A"]
+
+    plt.figure(figsize=(6, 6))
+    plt.pie(
+        counts.values,
+        labels=counts.index,
+        autopct="%1.1f%%",
+        startangle=90,
+        colors=colors,
+        textprops={"fontsize": 11},
+    )
+
+    plt.title(
+        "Approved Loans by Gender",
+        fontsize=14,
+        pad=14,
+        fontweight="bold",
+    )
+    plt.axis("equal")  # ensures perfect circle
+
+    plt.tight_layout()
+    plt.savefig(
+        os.path.join(output_dir, "approved_loans_by_gender.png")
+    )
+    plt.close()
+
+
+
+def plot_approved_loans_by_marital_status(
+    df: pd.DataFrame,
+    output_dir: str
+) -> None:
+    """
+    Pie chart showing marital status distribution among approved loans
+    using a green color palette.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    approved_df = df[df["Loan_Status"] == "Y"]
+    counts = approved_df["Married"].value_counts()
+
+    # Green color palette
+    colors = ["#1B5E20", "#81C784"]
+
+    plt.figure(figsize=(6, 6))
+    plt.pie(
+        counts.values,
+        labels=counts.index,
+        autopct="%1.1f%%",
+        startangle=90,
+        colors=colors,
+        textprops={"fontsize": 11},
+    )
+
+    plt.title(
+        "Approved Loans by Marital Status",
+        fontsize=14,
+        pad=14,
+        fontweight="bold",
+    )
+    plt.axis("equal")  # ensures perfect circle
+
+    plt.tight_layout()
+    plt.savefig(
+        os.path.join(output_dir, "approved_loans_by_marital_status.png")
+    )
+    plt.close()
+
+
+
+
+def plot_approved_loans_by_self_employment(
+    df: pd.DataFrame,
+    output_dir: str
+) -> None:
+    """
+    Pie chart showing self-employment distribution among approved loans
+    using a green color palette.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    approved_df = df[df["Loan_Status"] == "Y"]
+    counts = approved_df["Self_Employed"].value_counts()
+
+    # Green color palette
+    colors = ["#2E7D32", "#A5D6A7"]
+
+    plt.figure(figsize=(6, 6))
+    plt.pie(
+        counts.values,
+        labels=counts.index,
+        autopct="%1.1f%%",
+        startangle=90,
+        colors=colors,
+        textprops={"fontsize": 11},
+    )
+
+    plt.title(
+        "Approved Loans by Self-Employment Status",
+        fontsize=14,
+        pad=14,
+        fontweight="bold",
+    )
+    plt.axis("equal")  # ensures perfect circle
+
+    plt.tight_layout()
+    plt.savefig(
+        os.path.join(output_dir, "approved_loans_by_self_employment.png")
+    )
+    plt.close()
+
+
+
+
 def demographic_patterns_data(df: pd.DataFrame, output_dir: str) -> None:
     """
     Run Demographic Pattern Analysis
@@ -548,6 +676,10 @@ def demographic_patterns_data(df: pd.DataFrame, output_dir: str) -> None:
 
     plot_approval_rate_by_education(df, demographic_data_dir)
     plot_approval_rate_by_property_area(df, demographic_data_dir)
+    plot_approved_loans_by_gender(df, demographic_data_dir)
+    plot_approved_loans_by_marital_status(df, demographic_data_dir)
+    plot_approved_loans_by_self_employment(df, demographic_data_dir)
+
 
     print("Demographic Pattern Analysis completed. Figures saved to:", demographic_data_dir)
 
@@ -658,3 +790,63 @@ def run_outliers_data(df: pd.DataFrame, output_dir: str) -> None:
     save_outlier_summary(df, cols, outliers_dir)
 
     print("Outliers Analysis completed. Figures saved to:", outliers_dir)
+
+
+
+
+def plot_correlation_heatmap(
+    df: pd.DataFrame,
+    output_dir: str
+) -> None:
+    """
+    Correlation heatmap of numerical features and loan approval.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    df = df.copy()
+
+    # Encode Loan_Status for correlation
+    df["Loan_Status_Encoded"] = (df["Loan_Status"] == "Y").astype(int)
+
+    # Select numeric columns only
+    numeric_df = df.select_dtypes(include=["int64", "float64"])
+
+    # Compute correlation matrix
+    corr_matrix = numeric_df.corr()
+
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(
+        corr_matrix,
+        cmap="Greens",
+        annot=True,
+        fmt=".2f",
+        linewidths=0.5,
+        cbar_kws={"label": "Correlation"}
+    )
+
+    plt.title(
+        "Correlation Heatmap of Loan Features",
+        fontsize=14,
+        pad=12,
+        fontweight="bold",
+    )
+
+    plt.tight_layout()
+    plt.savefig(
+        os.path.join(output_dir, "correlation_heatmap.png")
+    )
+    plt.close()
+
+
+def run_heatmap_data(df: pd.DataFrame, output_dir: str) -> None:
+    """
+    Run Correlation Heatmap Analysis
+    """
+    print("Running Correlation Heatmap Analysis...")
+
+    heatmap_dir = os.path.join(output_dir, "Correlation Heatmap Analysis")
+
+    plot_correlation_heatmap(df, heatmap_dir)
+
+    print("Correlation Heatmap Analysis completed. Figures saved to:", heatmap_dir)
+
