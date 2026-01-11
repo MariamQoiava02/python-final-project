@@ -9,7 +9,8 @@ import os
 from src.data_processing import preprocess_data
 from src.visualization import run_basic_data, run_financial_driver_data, run_support_structure_data, run_loan_term_data, \
     demographic_patterns_data, run_outliers_data, run_heatmap_data
-from src.models import train_logistic_regression
+from src.models import train_logistic_regression, train_decision_tree
+
 
 def main() -> None:
     """
@@ -51,6 +52,9 @@ def main() -> None:
 
         # logistic regression
         train_logistic_regression()
+
+        # Decision tree
+        train_decision_tree()
 
 
 
