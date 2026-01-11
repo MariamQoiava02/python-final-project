@@ -49,7 +49,7 @@ def _save_confusion_matrix_png(cm: np.ndarray, output_path: str) -> None:
 
 def train_logistic_regression(
     processed_csv_path: str = "data/processed/loan_data_processed.csv",
-    output_dir: str = "artifacts/models",
+    output_dir: str = "artifacts/Logistic Regression",
     test_size: float = 0.2,
     random_state: int = 42,
 ):

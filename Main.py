@@ -54,13 +54,9 @@ def main() -> None:
 
 
 
-
-
-
     except Exception as exc:
         print("An error occurred during execution.")
         raise exc
-
 
 
 if __name__ == "__main__":
