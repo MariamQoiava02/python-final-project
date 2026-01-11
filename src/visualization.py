@@ -26,6 +26,13 @@ GRID_ALPHA = 0.3
 # Bar chart showing how many loan applications were approved or rejected
 # This helps us understand the overall balance between approved and rejected loans
 def plot_loan_status_distribution(df: pd.DataFrame, output_dir: str) -> None:
+    """
+       Creates a bar chart showing the number of approved and rejected loans.
+
+       Parameters:
+            df (pd.DataFrame): Dataset containing loan information.
+            output_dir (str): Directory where the plot will be saved.
+    """
 
     # Creating output directory if it does not exist
     os.makedirs(output_dir, exist_ok=True)
@@ -57,6 +64,13 @@ def plot_loan_status_distribution(df: pd.DataFrame, output_dir: str) -> None:
 # Histogram showing how total household income is distributed across all loan applicants
 # This helps us identify income ranges and possible outliers in the data
 def plot_total_income_distribution(df: pd.DataFrame, output_dir: str) -> None:
+    """
+       Creates a histogram showing the distribution of total household income.
+
+       Parameters:
+            df (pd.DataFrame): Dataset containing income information.
+            output_dir (str): Directory where the plot will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -84,6 +98,13 @@ def plot_total_income_distribution(df: pd.DataFrame, output_dir: str) -> None:
 # Histogram showing how requested loan amounts are distributed across all loan applications
 # This allows us to see common loan sizes and detect extreme values
 def plot_loan_amount_distribution(df: pd.DataFrame, output_dir: str) -> None:
+    """
+       Creates a histogram showing the distribution of loan amounts.
+
+       Parameters:
+            df (pd.DataFrame): Dataset containing loan amount information.
+            output_dir (str): Directory where the plot will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -110,7 +131,11 @@ def plot_loan_amount_distribution(df: pd.DataFrame, output_dir: str) -> None:
 # This makes it easier to generate all basic visualizations at once
 def run_basic_data(df: pd.DataFrame, output_dir: str) -> None:
     """
-    Run basic data analysis focused on distributions only.
+       Runs all basic data analysis plots.
+
+       Parameters:
+            df (pd.DataFrame): Dataset used for analysis.
+            output_dir (str): Base directory for saving plots.
     """
 
     print("Running basic data analysis...")
@@ -133,6 +158,13 @@ def run_basic_data(df: pd.DataFrame, output_dir: str) -> None:
 # Scatter plot showing the relationship between total household income and the requested loan amount for each application
 # This helps us understand whether higher income applicants tend to request larger loans
 def plot_income_vs_loan_amount(df: pd.DataFrame, output_dir: str) -> None:
+    """
+        Creates a scatter plot comparing total income and loan amount.
+
+        Parameters:
+                df (pd.DataFrame): Dataset containing income and loan amount data.
+                output_dir (str): Directory where the plot will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -159,6 +191,13 @@ def plot_income_vs_loan_amount(df: pd.DataFrame, output_dir: str) -> None:
 # Income groups are created using quantiles so that each group has a similar number of applicants
 # This allows us to see whether approval probability changes with income level
 def plot_approval_rate_by_income_group(df: pd.DataFrame, output_dir: str) -> None:
+    """
+        Creates a line chart showing loan approval rate across income groups.
+
+        Parameters:
+                df (pd.DataFrame): Dataset containing income and loan status data.
+                output_dir (str): Directory where the plot will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -212,6 +251,14 @@ def plot_approval_rate_by_income_group(df: pd.DataFrame, output_dir: str) -> Non
 # 100% Stacked bar chart showing the percentage of approved and rejected loan applications across different loan amount ranges
 # This helps compare approval outcomes for small vs large loan requests
 def plot_loan_amount_distribution_by_status_percentage( df: pd.DataFrame, output_dir: str) -> None:
+    """
+      Creates a stacked bar chart showing approval and rejection percentages
+      for different loan amount ranges.
+
+      Parameters:
+            df (pd.DataFrame): Dataset containing loan amount and loan status data.
+            output_dir (str): Directory where the plot will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -277,7 +324,11 @@ def plot_loan_amount_distribution_by_status_percentage( df: pd.DataFrame, output
 
 def run_financial_driver_data(df: pd.DataFrame, output_dir: str) -> None:
     """
-    Run financial driver analysis focused on distributions only.
+    Runs all financial driver analysis plots.
+
+    Parameters:
+        df (pd.DataFrame): Dataset used for analysis.
+        output_dir (str): Base directory for saving plots.
     """
 
     print("Running financial driver analysis...")
@@ -298,6 +349,14 @@ def run_financial_driver_data(df: pd.DataFrame, output_dir: str) -> None:
 # Grouped bar chart showing the number of approved and rejected loan applications for applicants with and without a coapplicant
 # This helps us understand whether having a coapplicant affects loan approval outcomes
 def plot_coapplicant_status_counts_grouped(df: pd.DataFrame, output_dir: str) -> None:
+    """
+       Creates a grouped bar chart showing loan approvals and rejections
+       for applicants with and without a coapplicant.
+
+       Parameters:
+            df (pd.DataFrame): Dataset containing coapplicant and loan status data.
+            output_dir (str): Directory where the plot will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -361,8 +420,13 @@ def plot_coapplicant_status_counts_grouped(df: pd.DataFrame, output_dir: str) ->
 
 def run_support_structure_data(df: pd.DataFrame, output_dir: str) -> None:
     """
-    Run support structure analysis
+       Runs support structure analysis plots.
+
+       Parameters:
+            df (pd.DataFrame): Dataset used for analysis.
+            output_dir (str): Base directory for saving plots.
     """
+
 
     print("Running support structure analysis...")
 
@@ -735,7 +799,8 @@ def demographic_patterns_data(df: pd.DataFrame, output_dir: str) -> None:
 
 # Outliers Analysis
 
-# Returns lower and upper bounds using the IQR rule
+# Helper function to calculate lower and upper bounds for outlier detection using the interquartile range (IQR) rule
+# This method is commonly used to identify extreme values in numerical data
 def _iqr_bounds(series: pd.Series):
 
     q1 = series.quantile(0.25)
@@ -746,7 +811,8 @@ def _iqr_bounds(series: pd.Series):
     return lower, upper
 
 
-# Combined boxplot for the provided columns
+# Combined boxplot for multiple numerical variables
+# This allows us to compare distributions and spot outliers across income-related variables and loan amount in one view
 def plot_boxplot_for_columns(df: pd.DataFrame, columns: list, output_dir: str) -> None:
 
     os.makedirs(output_dir, exist_ok=True)
@@ -773,7 +839,8 @@ def plot_boxplot_for_columns(df: pd.DataFrame, columns: list, output_dir: str) -
     plt.close()
 
 
-# Creating one simple boxplot per variable and save separately for inspection.
+# Creating individual boxplots for each variable.
+# This makes it easier to closely inspect outliers for each income-related variable and loan amount separately
 def plot_individual_boxplots(df: pd.DataFrame, columns: list, output_dir: str) -> None:
 
     os.makedirs(output_dir, exist_ok=True)
@@ -791,18 +858,24 @@ def plot_individual_boxplots(df: pd.DataFrame, columns: list, output_dir: str) -
 
 
 
-# Computing IQR bounds and counting of points below/above bounds for each column.
+# Computing IQR bounds and count how many observations fall below and above the bounds for each variable.
+# The results are saved to a CSV file for reference
 def save_outlier_summary(df: pd.DataFrame, columns: list, output_dir: str) -> None:
 
     os.makedirs(output_dir, exist_ok=True)
 
     rows = []
+    # Loop through each column to calculate outlier statistics
     for col in columns:
         series = df[col]
-        lower, upper = _iqr_bounds(series)
+        lower, upper = _iqr_bounds(series)  # Calculate IQR bounds
+
+        # Count observations outside the bounds
         below = int((series < lower).sum())
         above = int((series > upper).sum())
         total = int(series.size)
+
+        # Store results for this variable
         rows.append({
             "variable": col,
             "lower_bound": float(lower),
@@ -814,19 +887,13 @@ def save_outlier_summary(df: pd.DataFrame, columns: list, output_dir: str) -> No
             "pct_above": above / total * 100.0,
         })
 
-    summary = pd.DataFrame(rows)
+    summary = pd.DataFrame(rows)  # Convert results into a dataframe and save to CSV
     summary.to_csv(os.path.join(output_dir, "outliers_summary.csv"), index=False)
 
 
 
 def run_outliers_data(df: pd.DataFrame, output_dir: str) -> None:
-    """
-    Run Outliers Analysis
-    Produces:
-      - outliers_boxplots.png (combined)
-      - outlier_box_<column>.png (individual)
-      - outliers_summary.csv (IQR bounds and counts)
-    """
+
     print("Running Outliers Analysis...")
 
     cols = ["ApplicantIncome", "CoapplicantIncome", "TotalIncome", "LoanAmount"]
@@ -842,6 +909,8 @@ def run_outliers_data(df: pd.DataFrame, output_dir: str) -> None:
 
 # Correlation Heatmap
 
+# Heatmap showing correlations between numerical variables and loan approval
+# This helps identify which variables move together and which features may be strongly related to loan approval
 def plot_correlation_heatmap(
     df: pd.DataFrame,
     output_dir: str
@@ -853,13 +922,14 @@ def plot_correlation_heatmap(
 
     df = df.copy()
 
-    # Encode Loan_Status for correlation
+    # Encode loan status into numeric form (1 = approved, 0 = rejected)
     df["Loan_Status_Encoded"] = (df["Loan_Status"] == "Y").astype(int)
 
-    # Select numeric columns only
+    # Select numeric columns only for correlation calculation
     numeric_df = df.select_dtypes(include=["int64", "float64"])
 
     # Compute correlation matrix
+    # Each value shows the strength and direction of the relationship
     corr_matrix = numeric_df.corr()
 
     plt.figure(figsize=(10, 8))
@@ -886,10 +956,9 @@ def plot_correlation_heatmap(
     plt.close()
 
 
+
 def run_heatmap_data(df: pd.DataFrame, output_dir: str) -> None:
-    """
-    Run Correlation Heatmap Analysis
-    """
+
     print("Running Correlation Heatmap Analysis...")
 
     heatmap_dir = os.path.join(output_dir, "Correlation Heatmap Analysis")
