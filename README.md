@@ -41,7 +41,6 @@ The dataset includes information about applicants such as:
 
 ## Project Structure
 ### Folder Structure
-## Folder Structure
 
 ```commandline
 project-root
@@ -133,6 +132,94 @@ Data preprocessing is performed before any analysis or modeling to ensure the da
 - Categorical features are converted into numerical format using one-hot encoding.
 - Numerical features are scaled when required (for Logistic Regression) to improve model performance.
 
+## Machine Learning Models
+
+The goal of the machine learning part of this project is to predict whether a loan application will be approved or rejected based on applicant and loan characteristics.
+
+### Problem Type: Classification
+This is a *binary classification problem* because the target variable Loan_Status has two possible outcomes:
+- Approved (Y → 1)
+- Rejected (N → 0)
+
+Supervised learning models are used, as the correct outcome is known for each application.
+
+### Logistic Regression Model
+Logistic Regression is used as a baseline classification model.
+- It models the probability of loan approval using a linear relationship between features and the target.
+- Categorical variables are one-hot encoded.
+- Numerical features are scaled to improve model performance.
+- The model outputs class predictions and probabilities.
+
+This model is easy to interpret and helps understand which factors influence approval decisions.
+
+The Logistic Regression model was used as a baseline classification model to predict whether a loan application is approved or rejected.
+
+Overall, the model achieved an accuracy of about 85%, which means it correctly classified most loan applications. The recall for approved loans (class 1) is very high (around 99%), showing that the model is very good at identifying applications that should be approved. This is important in a loan context, where missing eligible applicants can be costly.
+
+However, the model performs less strongly on rejected loans (class 0). While precision for rejections is high, recall is lower, meaning some rejected cases are incorrectly predicted as approved. This imbalance is visible in the confusion matrix, where false positives (rejected loans predicted as approved) are higher than false negatives.
+
+The ROC-AUC score (~0.86) indicates good overall discrimination ability between approved and rejected loans. This suggests the model captures meaningful patterns in the data, especially related to credit history and income-related features.
+
+In summary, Logistic Regression provides a strong and interpretable baseline model. It is particularly effective at predicting approvals, but its performance on rejections could be improved using more complex models such as Decision Trees or Random Forests.
+
+### Decision Tree Classifier
+The Decision Tree model learns decision rules by splitting the data based on feature values.
+- It can capture non-linear relationships between features.
+- Feature scaling is not required.
+- The model is easy to visualize and interpret.
+
+This model helps understand how different conditions lead to approval or rejection.
+
+The Decision Tree classifier achieved an overall accuracy of about 72%, which is slightly lower than the Logistic Regression model. The confusion matrix shows that the model correctly identified many approved loans, but it also made more mistakes compared to Logistic Regression, especially by misclassifying some approved applications as rejected.
+
+The precision for approved loans is relatively high (~83%), meaning that when the model predicts an approval, it is often correct. However, the recall is lower (~75%), which indicates that the model fails to capture a noticeable portion of actual approved cases. This suggests that the tree is more conservative and misses some positive cases.
+
+Overall, the Decision Tree is easy to interpret and can capture non-linear relationships in the data, but in this case it does not outperform Logistic Regression. It provides useful insights into decision rules, but its predictive performance is weaker and more sensitive to data variations.
+
+
+### Random Forest Classifier (Extension)
+The Random Forest model is an ensemble method built from multiple decision trees.
+- It reduces overfitting compared to a single decision tree.
+- It provides more stable and accurate predictions.
+- Feature scaling is not required.
+
+This model is included as an extension to compare performance with simpler models.
+
+The Random Forest model was used as an extension to improve prediction performance compared to simpler models. It works by combining many decision trees and averaging their predictions, which helps reduce overfitting and improve generalization.
+
+Based on the confusion matrix, the model correctly classified most loan approvals and rejections. It achieved an accuracy of about 85%, meaning it made correct predictions for the majority of applications. The model shows high recall for approved loans, indicating that it is very effective at identifying applicants who should receive a loan. Compared to the Decision Tree, the Random Forest reduced misclassifications and provided more stable results.
+
+Overall, the Random Forest model performed slightly better than the Decision Tree and similarly to Logistic Regression, making it a strong and reliable classifier for this dataset.
+
+## Model Evaluation
+
+Model evaluation is used to assess how well each machine learning model predicts whether a loan application will be approved or rejected. All models are trained on the same data and evaluated on the same test set to ensure a fair and consistent comparison.
+
+### Evaluation Metrics
+The following evaluation metrics are used:
+- *Accuracy*: Measures the overall proportion of correct predictions.
+- *Precision*: Shows how many predicted approvals were actually approved.
+- *Recall*: Measures how many actual approved loans were correctly identified.
+- *F1-score*: Balances precision and recall into a single metric.
+
+These metrics provide a complete view of model performance, especially for imbalanced datasets.
+
+### Confusion Matrix Analysis
+A confusion matrix is generated for each model to visualize prediction results.
+- True Positives: Correctly predicted approved loans
+- True Negatives: Correctly predicted rejected loans
+- False Positives: Loans predicted as approved but actually rejected
+- False Negatives: Loans predicted as rejected but actually approved
+
+Confusion matrix heatmaps are saved for each model to help interpret classification errors.
+
+### Model Performance Comparison
+The performance of Logistic Regression, Decision Tree, and Random Forest models is compared using the same metrics.
+- Logistic Regression serves as a baseline model.
+- Decision Tree captures non-linear patterns in the data.
+- Random Forest generally provides improved performance due to ensemble learning.
+
+Comparing these models helps identify the most reliable approach for predicting loan approval.
 
 ## Results Summary
 
