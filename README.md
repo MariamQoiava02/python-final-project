@@ -132,6 +132,93 @@ Data preprocessing is performed before any analysis or modeling to ensure the da
 - Categorical features are converted into numerical format using one-hot encoding.
 - Numerical features are scaled when required (for Logistic Regression) to improve model performance.
 
+## Exploratory Data Analysis (EDA)
+
+Exploratory Data Analysis is used to understand the dataset, identify patterns, and gain insights before building machine learning models. Visualizations are used to explore distributions, relationships, and potential risk factors related to loan approval.
+
+### Basic Data Analysis
+This section focuses on understanding the overall structure of the data.
+- Distribution of approved vs rejected loan applications
+- Distribution of total household income
+- Distribution of requested loan amounts  
+These plots help identify class balance and general trends in income and loan size.
+
+The dataset shows a higher number of approved loans compared to rejected ones, indicating class imbalance in the target variable. This is an important consideration for building classification models.
+
+Applicant incomes are mostly concentrated within a moderate range, with a right-skewed distribution caused by a smaller number of high-income applicants. This suggests noticeable variability in financial profiles and the presence of income outliers. Requested loan amounts show a similar pattern, with most applications focused on mid-range loan values and fewer cases at very high loan amounts.
+
+Overall, the data exhibits income and loan amount variability, class imbalance, and extreme values. These characteristics justify deeper analysis of financial and demographic factors and support the use of robust machine learning models.
+
+### Financial Driver Analysis
+This analysis examines the relationship between income, loan amount, and approval outcomes.
+- Scatter plot of total household income vs loan amount
+- Approval rate across income groups (using quantiles)
+- Approval vs rejection percentages across loan amount ranges  
+This helps determine whether financial strength influences loan approval decisions.
+
+Household income and loan amount show a positive relationship, with higher-income applicants generally requesting larger loans. However, the wide spread of values indicates that income alone does not determine loan size or approval.
+
+Approval rates vary across income ranges, with mid-income groups showing slightly higher approval rates than very low or very high income groups. This suggests that both insufficient income and very high income do not automatically lead to higher approval probabilities.
+
+Loan amount also influences outcomes. Mid-range loan amounts are approved more often, while very large loans show higher rejection rates, likely due to increased risk. Overall, loan approval depends on a combination of income level and loan size rather than a single financial factor.
+
+### Support Structure Analysis
+This section analyzes the impact of having a coapplicant.
+- Comparison of approval and rejection counts for applicants with and without coapplicants  
+It helps assess whether additional financial support affects approval chances.
+
+Applicants with a coapplicant show a higher number of approved loans compared to those without a coapplicant. While rejection counts are similar for both groups, approval counts are noticeably higher when a coapplicant is present. This suggests that additional household income or shared financial responsibility improves approval chances. Overall, having a coapplicant appears to be a positive factor in loan approval decisions.
+
+### Loan Term and Risk Analysis
+This analysis focuses on loan duration and its relationship with approval outcomes.
+- Distribution of loan terms
+- Approval rate by loan term  
+This helps identify whether certain loan durations are considered riskier.
+
+Loan applications are heavily concentrated around longer loan terms, particularly 360 months, which represents the most common repayment duration. Shorter loan terms appear much less frequently, often with very small sample sizes.
+
+Approval rates vary across loan terms, but these rates are not consistent for terms with few observations. While some short-term loans show very high or very low approval rates, these results are unreliable due to limited data points. More common loan terms, such as 180 and 360 months, show moderate approval rates, suggesting a balance between repayment flexibility and risk.
+
+Overall, the analysis indicates that loan term influences approval outcomes, but reliable conclusions are mainly driven by commonly used terms. Extremely short or very long terms may carry higher risk or uncertainty, especially when supported by fewer applications.
+
+### Demographic Pattern Analysis
+This section explores how demographic factors relate to loan approval.
+- Approval rate by education level
+- Approval rate by property area
+- Gender distribution among approved loans
+- Marital status distribution among approved loans
+- Self-employment distribution among approved loans  
+These visualizations highlight demographic patterns among successful applicants.
+
+Demographic factors show noticeable differences in loan approval outcomes. Applicants with a graduate-level education have a higher approval rate than non-graduates, which may be partially explained by higher median household income among graduates. This suggests that education level is associated with stronger financial profiles and higher approval chances.
+
+Property area also influences approval rates. Semiurban applicants show the highest approval rates, while rural areas have lower approval rates. Urban areas fall in between. These differences suggest that location-related economic conditions may affect perceived lending risk.
+
+Among approved loans, male applicants represent a much larger share than female applicants. Married applicants also make up a higher proportion of approved loans compared to unmarried applicants, indicating that household stability may play a role in approval decisions. Additionally, most approved loans are issued to applicants who are not self-employed, suggesting that stable employment may be viewed more favorably by lenders.
+
+Overall, demographic characteristics interact with financial factors and appear to influence loan approval outcomes, reinforcing the need to consider both economic and personal attributes in lending decisions.
+
+### Outlier Analysis
+Outlier analysis is performed to detect extreme values in financial variables.
+- Boxplots for income and loan amount variables
+- Outlier detection using the Interquartile Range (IQR) method
+- Summary of outliers saved to a CSV file  
+This helps understand whether extreme values are realistic or potentially problematic.
+
+Outlier analysis was conducted on key numerical variables, including applicant income, coapplicant income, total household income, and loan amount. Boxplots show that income-related variables are right-skewed, with several high-value outliers, especially in total household income. These represent applicants with unusually high earnings compared to the majority of the dataset.
+
+Loan amount also shows some extreme values, but fewer compared to income variables. Importantly, these outliers appear realistic rather than data errors, as high-income applicants may legitimately request larger loans. Therefore, outliers were not removed, but kept in the dataset to preserve real-world variability. This decision helps the models learn from both typical and extreme cases without losing important information.
+
+### Correlation Analysis
+Correlation analysis examines relationships between numerical variables.
+- Correlation heatmap of income, loan amount, loan term, and loan approval  
+This helps identify which variables move together and which features may be important for modeling.
+
+The correlation heatmap shows relationships between numerical features and loan approval. Income-related variables are strongly correlated with each other, especially applicant income and total household income, which is expected since total income is derived from both applicant and coapplicant earnings. Loan amount also shows a moderate positive correlation with total income, indicating that higher-income households tend to request larger loans.
+
+Among all features, credit history has the strongest positive correlation with loan approval, suggesting it is one of the most important factors in approval decisions. Other variables such as loan term, number of dependents, and income levels show very weak correlations with approval status. This indicates that while income influences loan size, credit history plays a much larger role in whether a loan is approved, which aligns with real-world lending practices.
+
+
 ## Machine Learning Models
 
 The goal of the machine learning part of this project is to predict whether a loan application will be approved or rejected based on applicant and loan characteristics.
