@@ -169,16 +169,19 @@ def plot_approval_rate_by_income_group(df: pd.DataFrame, output_dir: str) -> Non
     df["Approved"] = (df["Loan_Status"] == "Y").astype(int)
     df["Income_Group"] = pd.qcut(df["TotalIncome"], q=5)  # Divide applicants into 5 income groups based on total household income
 
+    # Calculating the average approval rate for each income group
     approval_rate = (
         df.groupby("Income_Group", observed=True)["Approved"]
         .mean()
     )
 
+    # Creating readable labels for income ranges
     income_labels = [
         f"{int(interval.left)}–{int(interval.right)}"
         for interval in approval_rate.index
     ]
 
+    # Plotting approval rate across income groups
     plt.figure(figsize=(8, 5))
     plt.plot(
         income_labels,
@@ -195,7 +198,7 @@ def plot_approval_rate_by_income_group(df: pd.DataFrame, output_dir: str) -> Non
     )
     plt.xlabel("Total Household Income Range")
     plt.ylabel("Approval Rate")
-    plt.ylim(0, 1)
+    plt.ylim(0, 1)  # Approval rate is a proportion, so limit y-axis between 0 and 1
     plt.grid(alpha=GRID_ALPHA)
 
     plt.tight_layout()
@@ -207,16 +210,17 @@ def plot_approval_rate_by_income_group(df: pd.DataFrame, output_dir: str) -> Non
 
 
 # 100% Stacked bar chart showing the percentage of approved and rejected loan applications across different loan amount ranges
+# This helps compare approval outcomes for small vs large loan requests
 def plot_loan_amount_distribution_by_status_percentage( df: pd.DataFrame, output_dir: str) -> None:
 
     os.makedirs(output_dir, exist_ok=True)
 
     df = df.copy()
 
-    # Create loan amount groups
+    # Dividing loan amounts into 5 groups based on quantiles
     df["LoanAmount_Group"] = pd.qcut(df["LoanAmount"], q=5)
 
-    # Count approvals and rejections per group
+    # Count how many loans were approved and rejected in each loan amount group
     counts = (
         df.groupby(
             ["LoanAmount_Group", "Loan_Status"],
@@ -226,14 +230,16 @@ def plot_loan_amount_distribution_by_status_percentage( df: pd.DataFrame, output
         .unstack(fill_value=0)
     )
 
+    # Converting counts into percentages so each bar sums to 100%
     percentages = counts.div(counts.sum(axis=1), axis=0) * 100
 
+    # Creating readable labels for loan amount ranges
     labels = [
         f"{int(interval.left)}–{int(interval.right)}"
         for interval in percentages.index
     ]
 
-    # Plot
+
     plt.figure(figsize=(9, 5))
     plt.bar(
         labels,
@@ -289,32 +295,42 @@ def run_financial_driver_data(df: pd.DataFrame, output_dir: str) -> None:
 
 # Support Structure Analysis
 
-# Grouped bar chart showing counts of Yes and No for With vs Without coapplicant
+# Grouped bar chart showing the number of approved and rejected loan applications for applicants with and without a coapplicant
+# This helps us understand whether having a coapplicant affects loan approval outcomes
 def plot_coapplicant_status_counts_grouped(df: pd.DataFrame, output_dir: str) -> None:
 
     os.makedirs(output_dir, exist_ok=True)
 
+    # Check that required columns exist
     if "CoapplicantIncome" not in df.columns or "Loan_Status" not in df.columns:
         raise KeyError("CoapplicantIncome and/or Loan_Status column not found in DataFrame.")
 
-    # Prepare data
+    # Determine whether each applicant has a coapplicant
+    # If coapplicant income is greater than zero,  we assume a coapplicant exists
     has_coapp = df["CoapplicantIncome"].fillna(0) > 0
-    group = has_coapp.map({True: "With Coapplicant", False: "Without Coapplicant"})
-    approved = df["Loan_Status"]=='Y'
 
+    # Convert boolean values into readable group labels
+    group = has_coapp.map({True: "With Coapplicant", False: "Without Coapplicant"})
+    approved = df["Loan_Status"]=='Y'  # Creating a boolean column indicating loan approval
+
+    # Combine group and approval status into a single dataframe for analysis
     summary = pd.DataFrame({
         "group": group,
         "approved": approved
     })
 
+    # Count approvals and rejections within each coapplicant group
     counts = summary.groupby(["group", "approved"]).size().unstack(fill_value=0)
+
     # Ensure both boolean columns exist (True/False)
+    # This avoids issues if a category has zero cases
     for col in [False, True]:
         if col not in counts.columns:
             counts[col] = 0
+
+    # Reordering groups for consistent plotting
     counts = counts.reindex(index=["With Coapplicant", "Without Coapplicant"]).fillna(0).astype(int)
 
-    # Plot grouped bars: for each group, two bars (No, Yes)
     labels = counts.index.tolist()
     yes_counts = counts[True].values
     no_counts = counts[False].values
@@ -323,8 +339,8 @@ def plot_coapplicant_status_counts_grouped(df: pd.DataFrame, output_dir: str) ->
     width = 0.35
 
     plt.figure(figsize=(8, 5))
-    plt.bar([xi - width/2 for xi in x], yes_counts, width=width, label="Yes (Approved)", color=BAR_COLOR, edgecolor="black")
-    plt.bar([xi + width/2 for xi in x], no_counts, width=width, label="No (Rejected)", color=NEG_COLOR, edgecolor="black")
+    plt.bar([xi - width/2 for xi in x], yes_counts, width=width, label="Yes (Approved)", color=BAR_COLOR, edgecolor="black")  # Plot approved loan counts
+    plt.bar([xi + width/2 for xi in x], no_counts, width=width, label="No (Rejected)", color=NEG_COLOR, edgecolor="black")  # Plot rejected loan counts
 
     plt.xticks(x, labels)
     plt.ylabel("Number of Applications", fontsize=11)
@@ -340,6 +356,8 @@ def plot_coapplicant_status_counts_grouped(df: pd.DataFrame, output_dir: str) ->
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, "coapplicant_yes_no_counts_grouped.png"))
     plt.close()
+
+
 
 def run_support_structure_data(df: pd.DataFrame, output_dir: str) -> None:
     """
@@ -357,17 +375,21 @@ def run_support_structure_data(df: pd.DataFrame, output_dir: str) -> None:
 
 
 
+
 # Loan Term and Risk Structure
 
 
 # Bar chart showing the distribution of loan terms
+# This helps us understand which loan durations are most commonly requested  and whether applicants prefer short-term or long-term loans.
 def plot_loan_term_distribution(df: pd.DataFrame, output_dir: str) -> None:
 
     os.makedirs(output_dir, exist_ok=True)
 
+    # Check that the loan amount column exists
     if "Loan_Amount_Term" not in df.columns:
         raise KeyError("Loan_Amount_Term column not found in DataFrame.")
 
+    # Counting how many applications fall under each loan term
     terms = df["Loan_Amount_Term"]
     counts = terms.value_counts().sort_index()
 
@@ -390,16 +412,20 @@ def plot_loan_term_distribution(df: pd.DataFrame, output_dir: str) -> None:
 
 
 
-# bar chart showing the approval rate percentage for each term
+# Bar chart showing the approval rate percentage for each loan term
+# This allows us to examine whether certain loan durations are associated with higher or lower approval rates
 def plot_approval_rate_by_loan_term(df: pd.DataFrame, output_dir: str) -> None:
 
     os.makedirs(output_dir, exist_ok=True)
 
+    # Check that required columns exist
     if "Loan_Amount_Term" not in df.columns or "Loan_Status" not in df.columns:
         raise KeyError("Loan_Amount_Term and/or Loan_Status column not found in DataFrame.")
 
+    # Creating a boolean column indicating loan approval
     approved = df["Loan_Status"]=='Y'
 
+    # Build a small table for aggregation
     table = df[["Loan_Amount_Term"]].copy()
     table["approved"] = approved
 
@@ -459,7 +485,8 @@ def run_loan_term_data(df: pd.DataFrame, output_dir: str) -> None:
 # Demographic Pattern Analysis
 
 
-# Bar chart showing the approval rates by Education
+# Bar chart showing the approval rates by education level.
+# This helps us understand whether education is associated with higher or lower chances of loan approval
 def plot_approval_rate_by_education(df: pd.DataFrame, output_dir: str) -> None:
 
     os.makedirs(output_dir, exist_ok=True)
@@ -480,10 +507,9 @@ def plot_approval_rate_by_education(df: pd.DataFrame, output_dir: str) -> None:
     )
     agg["approval_rate"] = agg["approved_count"] / agg["total"] * 100
 
-    # Sort labels alphabetically (keeps code simple)
+    # Sort labels alphabetically (keeping code simple)
     agg = agg.sort_index()
 
-    # Plot
     plt.figure(figsize=(9, 5))
     labels = [str(x) for x in agg.index]
     values = agg["approval_rate"].values
@@ -507,7 +533,8 @@ def plot_approval_rate_by_education(df: pd.DataFrame, output_dir: str) -> None:
 
 
 
-# Bar chart showing the approval rate based on Property
+# Bar chart showing the approval rate based on property area
+# This allows us to examine whether location (urban, semiurban, rural) is related to loan approval outcomes
 def plot_approval_rate_by_property_area(df: pd.DataFrame, output_dir: str) -> None:
 
     os.makedirs(output_dir, exist_ok=True)
@@ -531,7 +558,6 @@ def plot_approval_rate_by_property_area(df: pd.DataFrame, output_dir: str) -> No
     # Sort labels alphabetically
     agg = agg.sort_index()
 
-    # Plot
     plt.figure(figsize=(9, 5))
     labels = [str(x) for x in agg.index]
     values = agg["approval_rate"].values
@@ -542,7 +568,7 @@ def plot_approval_rate_by_property_area(df: pd.DataFrame, output_dir: str) -> No
     plt.ylim(0, 100)
     plt.grid(axis="y", alpha=GRID_ALPHA)
 
-    # Annotate percent, n, and median income
+    # Annotate each bar with approval rate, sample size, and median income
     for i, (label, row) in enumerate(agg.iterrows()):
         pct = row["approval_rate"]
         n = int(row["total"])
@@ -555,21 +581,21 @@ def plot_approval_rate_by_property_area(df: pd.DataFrame, output_dir: str) -> No
 
 
 
+
+# Pie chart showing gender distribution among approved loans only.
+# This helps us understand which gender groups are more represented among successful loan applications
 def plot_approved_loans_by_gender(
     df: pd.DataFrame,
     output_dir: str
 ) -> None:
-    """
-    Pie chart showing gender distribution among approved loans
-    using a green color palette.
-    """
+
     os.makedirs(output_dir, exist_ok=True)
 
-    approved_df = df[df["Loan_Status"] == "Y"]
-    counts = approved_df["Gender"].value_counts()
+    approved_df = df[df["Loan_Status"] == "Y"]  # Filter dataset to approved loans only
+    counts = approved_df["Gender"].value_counts()  # Count approved loans by gender
 
     # Green color palette
-    colors = ["#2E7D32", "#66BB6A"]
+    colors = [BAR_COLOR, HIST_COLOR]
 
     plt.figure(figsize=(6, 6))
     plt.pie(
@@ -597,21 +623,21 @@ def plot_approved_loans_by_gender(
 
 
 
+
+# Pie chart showing marital status distribution among approved loans
+# This shows whether married or unmarried applicants make up a larger share of approved loans
 def plot_approved_loans_by_marital_status(
     df: pd.DataFrame,
     output_dir: str
 ) -> None:
-    """
-    Pie chart showing marital status distribution among approved loans
-    using a green color palette.
-    """
+
     os.makedirs(output_dir, exist_ok=True)
 
     approved_df = df[df["Loan_Status"] == "Y"]
     counts = approved_df["Married"].value_counts()
 
     # Green color palette
-    colors = ["#1B5E20", "#81C784"]
+    colors = [BAR_COLOR, HIST_COLOR]
 
     plt.figure(figsize=(6, 6))
     plt.pie(
@@ -640,6 +666,8 @@ def plot_approved_loans_by_marital_status(
 
 
 
+# Pie chart showing self-employment status among approved loans
+# This helps analyze whether self-employed applicants are well represented among approved loan cases
 def plot_approved_loans_by_self_employment(
     df: pd.DataFrame,
     output_dir: str
@@ -683,6 +711,7 @@ def plot_approved_loans_by_self_employment(
 
 
 
+
 def demographic_patterns_data(df: pd.DataFrame, output_dir: str) -> None:
     """
     Run Demographic Pattern Analysis
@@ -699,6 +728,8 @@ def demographic_patterns_data(df: pd.DataFrame, output_dir: str) -> None:
 
 
     print("Demographic Pattern Analysis completed. Figures saved to:", demographic_data_dir)
+
+
 
 
 
@@ -809,7 +840,7 @@ def run_outliers_data(df: pd.DataFrame, output_dir: str) -> None:
     print("Outliers Analysis completed. Figures saved to:", outliers_dir)
 
 
-
+# Correlation Heatmap
 
 def plot_correlation_heatmap(
     df: pd.DataFrame,
