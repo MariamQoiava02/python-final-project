@@ -1,8 +1,5 @@
 """
-main.py
-
 Main entry point for the Loan Approval Analysis and Classification project.
-This script orchestrates data preprocessing, visualization, and modeling.
 """
 
 import os
@@ -13,9 +10,6 @@ from src.models import train_logistic_regression, train_decision_tree, train_ran
 
 
 def main() -> None:
-    """
-    Run the full data preprocessing and Phase 1/Phase 3 EDA pipeline.
-    """
     raw_data_path = "data/raw/raw.csv"
     processed_data_path = "data/processed/loan_data_processed.csv"
     figures_dir = "reports/figures"
@@ -50,14 +44,17 @@ def main() -> None:
         # 8: Correlation Heatmap Analysis
         run_heatmap_data(df, figures_dir)
 
-        # logistic regression
+
+            # ML Models
+
+        # Logistic Regression Model
         train_logistic_regression()
 
-        # Decision tree
+        # Decision Tree Model
         train_decision_tree()
 
+        # Random Forest Model
         train_random_forest()
-
 
 
     except Exception as exc:

@@ -1,4 +1,3 @@
-# linear regression moded
 
 from pathlib import Path
 import json
@@ -24,7 +23,10 @@ from sklearn.metrics import (
 )
 import joblib
 
+# Logistic Regression Model
 
+# Function to convert the target variable into binary format
+# Approved loans are mapped to 1, rejected loans to 0
 def _binary_target(series: pd.Series) -> pd.Series:
     """
     Simple target encoding:
@@ -33,6 +35,8 @@ def _binary_target(series: pd.Series) -> pd.Series:
     return series.astype(str).str.strip().str.upper().str.startswith("Y").astype(int)
 
 
+# Function to save a confusion matrix as an image
+# This helps visually evaluate model performance
 def _save_confusion_matrix_png(cm: np.ndarray, output_path: str) -> None:
     """
     Save a simple confusion matrix heatmap to output_path.
@@ -49,22 +53,25 @@ def _save_confusion_matrix_png(cm: np.ndarray, output_path: str) -> None:
     plt.close()
 
 
+# Main function to train and evaluate a Logistic Regression Model
 def train_logistic_regression(
     processed_csv_path: str = "data/processed/loan_data_processed.csv",
     output_dir: str = "Reports/Results/Logistic Regression",
     test_size: float = 0.2,
     random_state: int = 42,
 ):
+    # Create output directory if it doesn't exist
     outdir = Path(output_dir)
     outdir.mkdir(parents=True, exist_ok=True)
 
-    # 1) Load data
+    # 1) Load the processed data
     df = pd.read_csv(processed_csv_path)
 
     if "Loan_Status" not in df.columns:
         raise KeyError("Loan_Status column not found in processed dataset.")
 
-    # 2) Prepare target
+    # 2) Prepare target variable
+    # Convert loan approval status to binary values
     y = _binary_target(df["Loan_Status"])
 
     # 3) Prepare features: drop target and any ID column if present
@@ -72,27 +79,30 @@ def train_logistic_regression(
     if "Loan_ID" in X.columns:
         X = X.drop(columns=["Loan_ID"])
 
-    # 4) One-hot encode categorical columns (simple)
+    # 4) One-hot encode categorical columns
+    # This converts text categories into numeric format
     categorical_cols = X.select_dtypes(include=["object", "category"]).columns.tolist()
     if categorical_cols:
         X = pd.get_dummies(X, columns=categorical_cols, drop_first=True)
 
-    # 5) Scale numeric columns
+    # 5) Scale numerical features
+    # Logistic Regression performs better when features are on similar scales
     numeric_cols = X.select_dtypes(include=[np.number]).columns.tolist()
     scaler = StandardScaler()
     if numeric_cols:
         X[numeric_cols] = scaler.fit_transform(X[numeric_cols])
 
-    # 6) Train / test split (stratify to keep class balance)
+    # 6) Train / test split
+    # Stratify ensures class balance is preserved
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=random_state, stratify=y
     )
 
-    # 7) Train logistic regression
+    # 7) Train the Logistic Regression Model
     model = LogisticRegression(solver="liblinear", random_state=random_state, max_iter=1000)
     model.fit(X_train, y_train)
 
-    #  Evaluate
+    #  Evaluate model performance on test data
     y_pred = model.predict(X_test)
     try:
         y_proba = model.predict_proba(X_test)[:, 1]
@@ -101,6 +111,7 @@ def train_logistic_regression(
         y_proba = None
         roc = None
 
+    # Creating the confusion matrix
     cm = confusion_matrix(y_test, y_pred)
     metrics = {
         "accuracy": float(accuracy_score(y_test, y_pred)),
@@ -147,13 +158,13 @@ def train_logistic_regression(
         "feature_columns": X.columns.tolist(),
     }
 
-# -----------------------------end linear regression----------------------------
 
+# Decision Tree Model
 
-
+# Function to train and evaluate a Decision Tree Classifier
 def train_decision_tree(
     processed_csv_path: str = "data/processed/loan_data_processed.csv",
-    output_dir: str = "Reports/Results/decision_tree",
+    output_dir: str = "Reports/Results/Decision Tree",
     test_size: float = 0.2,
     random_state: int = 42,
     max_depth: int = None,
@@ -180,15 +191,17 @@ def train_decision_tree(
     # 2) Target
     y = _binary_target(df["Loan_Status"])
 
-    # 3) Features (no scaling required for tree models)
+    # 3) Prepare feature matrix
     X = _prepare_features(df)
 
     # 4) Train/test split (stratify)
+    # Stratify keeps the approval/rejection ratio similar in both sets
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=random_state, stratify=y
     )
 
     # 5) Train Decision Tree
+    # max_depth is used to prevent overfitting
     clf = DecisionTreeClassifier(max_depth=max_depth, random_state=random_state)
     clf.fit(X_train, y_train)
 
@@ -236,6 +249,8 @@ def train_decision_tree(
         "feature_columns": X.columns.tolist(),
     }
 
+
+# Function to prepare feature matrix for ML models
 def _prepare_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     Drop target column and ID column if present.
@@ -255,10 +270,17 @@ def _prepare_features(df: pd.DataFrame) -> pd.DataFrame:
     return X
 
 
-# --- New: Random Forest model (added at bottom, does not change any existing functions) ---
+
+
+
+# Random Forest Model
+
+
+# Function to train and evaluate a Random Forest classifier
+# This model is an extension of Decision Trees and usually gives better performance
 def train_random_forest(
     processed_csv_path: str = "data/processed/loan_data_processed.csv",
-    output_dir: str = "artifacts/random_forest",
+    output_dir: str = "Reports/Results/Random Forest",
     test_size: float = 0.2,
     random_state: int = 42,
     n_estimators: int = 100,
@@ -287,10 +309,11 @@ def train_random_forest(
     if "Loan_Status" not in df.columns:
         raise KeyError("Loan_Status column not found in processed dataset.")
 
-    # 2) Target encoding (Y -> 1)
+    # 2) Prepare target variable
+    # Convert loan approval status into binary values
     y = _binary_target(df["Loan_Status"])
 
-    # 3) Features: same simple preparation
+    # 3) Preparing feature matrix
     X = _prepare_features(df)
 
     # 4) Train/test split (stratify to keep class balance)
@@ -299,6 +322,7 @@ def train_random_forest(
     )
 
     # 5) Train Random Forest
+    # Building multiple decision trees and averages their results
     rf = RandomForestClassifier(
         n_estimators=n_estimators,
         max_depth=max_depth,
@@ -309,6 +333,7 @@ def train_random_forest(
 
     # 6) Predict & evaluate
     y_pred = rf.predict(X_test)
+
 
     accuracy = float(accuracy_score(y_test, y_pred))
     precision = float(precision_score(y_test, y_pred, zero_division=0))

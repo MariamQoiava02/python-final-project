@@ -32,8 +32,6 @@ def inspect_data(df: pd.DataFrame) -> None:
     Parameters:
         df (pd.DataFrame): Dataset to inspect.
 
-    Returns:
-        None
     """
     print("Dataset shape:", df.shape)
     print("\nData types:\n", df.dtypes)

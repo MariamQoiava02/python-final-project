@@ -1,222 +1,210 @@
 # Loan Approval Analysis and Classification
 
+## Team Members
+- Tamar Sanaia
+- Mariam Koiava
+- Saba Chichua
 ## Project Overview
-This project analyzes a loan approval dataset to identify key factors influencing loan approval decisions and to build a machine learning model that predicts whether a loan application will be approved or not. The project follows a structured data science workflow, including data cleaning, exploratory data analysis, and classification modeling.
+This project analyzes loan application data to understand the factors that influence loan approval decisions.  
+The project combines data preprocessing, exploratory data analysis (EDA), and machine learning classification models to predict whether a loan application will be approved or rejected.
 
----
+## Problem Statement
+Financial institutions receive many loan applications and must decide whether to approve or reject them.  
+These decisions depend on factors such as income, loan amount, loan term, and applicant characteristics.  
+The goal of this project is to analyze these factors and build machine learning models that can predict loan approval outcomes.
 
+## Project Objectives
+- Clean and preprocess raw loan application data
+- Explore key patterns and relationships in the data
+- Identify financial and demographic factors related to loan approval
+- Build classification models to predict loan approval
+- Compare model performance and summarize results
 ## Dataset Description
-The dataset contains demographic, financial, and loan-related information about applicants. It includes both numerical and categorical variables, as well as a binary target variable indicating loan approval status.
+### Data Source
+The dataset used in this project was taken from Kaggle.
+It is a publicly available dataset that contains historical loan application records used for loan approval analysis and prediction tasks.
+### Dataset Overview
+The dataset includes information about applicants such as:
+- Applicant income
+- Coapplicant income
+- Loan amount
+- Loan term
+- Education level
+- Property area
+- Marital status
+- Employment status
+- Loan approval status
+### Target Variable
+- **Loan_Status**  
+  - `Y` → Loan approved  
+  - `N` → Loan rejected  
 
-The raw dataset is stored in the `data/raw/` directory and is not modified directly. All transformations are performed programmatically to ensure reproducibility.
+## Project Structure
+### Folder Structure
+## Folder Structure
 
----
+```commandline
+project-root
 
-## Data Quality Report
+data
+  raw
+    raw.csv
+  processed
+    loan_data_processed.csv
 
-### Initial Data Inspection
-Before cleaning, the dataset was inspected using Pandas to understand its structure and quality.
+src
+  data_processing.py
+  visualization.py
+  models.py
 
-Key observations:
-- Missing values were present in several columns, including `LoanAmount`, `Loan_Amount_Term`, `Credit_History`, `Gender`, and `Self_Employed`.
-- Some columns had inconsistent data types, such as `Dependents` containing values like `"3+"`.
-- Income-related variables and loan amounts showed skewed distributions with potential outliers.
-- The dataset included an identifier column (`Loan_ID`) that did not provide analytical or predictive value.
+reports
+  figures
+    Basic Data Analysis
+    Financial Data Analysis
+    Support Structure Analysis
+    Loan Term and Risk Analysis
+    Demographic Pattern Analysis
+    Outliers Analysis
+    Correlation Heatmap Analysis
 
----
+  Results
+    Logistic Regression
+    Decision Tree
+    Random Forest
 
-### Data Cleaning and Preprocessing Pipeline
-A fully reproducible data preprocessing pipeline was implemented using Pandas. All steps are executed programmatically and can be rerun from the raw dataset without manual intervention.
+main.py
+README.md
+requirements.txt
 
-The pipeline includes the following steps:
-1. Loading the raw dataset  
-2. Inspecting data structure and missing values  
-3. Handling missing values  
-4. Converting data types  
-5. Removing low-importance columns  
-6. Detecting and handling outliers  
-7. Creating derived features  
-8. Reordering columns for clarity  
-9. Saving the processed dataset  
+```
 
-All preprocessing logic is implemented in `src/data_processing.py` and executed via `main.py`.
+### Key Files Description
+- **`main.py`**  
+  Main entry point of the project.  
+  Runs data preprocessing, all exploratory data analysis steps, and machine learning models in sequence.
 
----
+- **`src/data_processing.py`**  
+  Handles data cleaning, missing values, feature creation, and saving the processed dataset.
 
-### Handling Missing Values
-Different strategies were applied depending on the data type:
+- **`src/visualization.py`**  
+  Contains all visualization functions used for exploratory data analysis, including distributions, financial drivers, demographic patterns, outliers, and correlation heatmaps.
 
-- **Numerical variables** (e.g., `LoanAmount`, `Loan_Amount_Term`)  
-  Missing values were filled using the **median**, which is more robust to skewed distributions and outliers.
+- **`src/models.py`**  
+  Contains machine learning training functions:
+  - Logistic Regression  
+  - Decision Tree Classifier  
+  - Random Forest Classifier  
+  Saves trained models, metrics, and evaluation outputs.
 
-- **Categorical variables** (e.g., `Gender`, `Married`, `Self_Employed`)  
-  Missing values were filled using the **mode**, preserving the most common category.
+- **`data/raw/`**  
+  Stores the original Kaggle dataset.
 
-This approach avoids unnecessary data loss while maintaining dataset integrity.
+- **`data/processed/`**  
+  Stores the cleaned and processed dataset used for modeling.
 
----
+- **`reports/figures/`**  
+  Contains all generated plots from the exploratory data analysis phase.
 
-### Data Type Conversions
-Several columns required conversion to appropriate data types:
-- `Dependents`: The value `"3+"` was converted to the integer `3`, and the column was cast to integer type.
-- `Credit_History`: Converted from floating-point to integer type, as it represents a binary indicator.
+- **`reports/Results/`**  
+  Contains machine learning outputs such as metrics, confusion matrices, and predictions.
 
-These conversions ensure consistency and correct interpretation during analysis and modeling.
+## Data Preprocessing
 
----
+Data preprocessing is performed before any analysis or modeling to ensure the dataset is clean, consistent, and suitable for machine learning.
 
-### Outlier Detection and Treatment
-Outliers were identified in the following numerical columns:
-- `ApplicantIncome`
-- `CoapplicantIncome`
-- `LoanAmount`
-
-The **Interquartile Range (IQR)** method was used to detect outliers. Instead of removing rows, extreme values were capped at the calculated lower and upper bounds. This approach preserves the dataset size while reducing the influence of extreme values on the model.
-
----
-
-### Removal of Low-Importance Columns
-The column `Loan_ID` was removed during preprocessing.
-
-**Justification:**  
-`Loan_ID` is a unique identifier and does not contain information relevant to predicting loan approval outcomes. Including such identifiers in machine learning models can introduce noise without improving predictive performance.
-
----
+### Data Cleaning
+- Unnecessary columns such as ID fields are removed.
+- Column names are standardized for easier handling.
+- Data types are checked to ensure numerical and categorical variables are correctly identified.
 
 ### Feature Engineering
-A derived feature was created to improve the dataset:
+- A new feature `TotalIncome` is created by combining applicant income and coapplicant income.
+- This helps represent total household financial capacity instead of treating incomes separately.
 
-- **TotalIncome** = `ApplicantIncome` + `CoapplicantIncome`
+### Handling Missing Values
+- Missing values in numerical columns are handled using simple statistical methods such as median values.
+- Missing values in categorical columns are filled using the most frequent category.
+- This approach prevents data loss while keeping the dataset consistent.
 
-This feature represents combined household income and provides a more realistic measure of an applicant’s financial capacity.
+### Encoding and Scaling
+- The target variable `Loan_Status` is encoded into binary values:
+  - Approved (`Y`) → 1  
+  - Rejected (`N`) → 0
+- Categorical features are converted into numerical format using one-hot encoding.
+- Numerical features are scaled when required (for Logistic Regression) to improve model performance.
 
----
 
-### Column Reordering
-Columns were reordered to improve readability and logical structure:
-- The target variable (`Loan_Status`) was placed first
-- Financial variables were grouped together
-- Demographic and categorical variables were placed afterward
+## Results Summary
 
-This step improves clarity without modifying the underlying data.
+The results of this project show that loan approval decisions are strongly influenced by a combination of financial, support-related, and demographic factors.
 
----
+From the exploratory data analysis, household income emerges as one of the most important drivers of loan approval. Applicants with higher total income generally request larger loan amounts and have higher approval rates. However, extremely high loan amounts and very long loan terms are associated with lower approval probabilities, indicating increased risk from the lender’s perspective.
 
-### Final Dataset Quality
-After preprocessing:
-- All missing values were handled
-- Data types were consistent
-- Outliers were addressed
-- Irrelevant columns were removed
-- A clean, structured dataset was produced
+Support structure also plays a role in approval outcomes. Applications with a coapplicant show a higher number of approved loans compared to those without a coapplicant, suggesting that shared financial responsibility increases approval likelihood.
 
-The processed dataset is stored in the `data/processed/` directory and is suitable for exploratory data analysis and machine learning classification.
+Demographic patterns reveal additional differences. Graduated applicants tend to have higher approval rates than non-graduates, and applicants from semiurban areas show higher approval rates compared to rural and urban areas. Gender, marital status, and self-employment status affect the distribution of approved loans, although these factors appear less influential than income and credit-related variables.
 
----
+In the modeling phase, all three machine learning models successfully learned meaningful patterns from the data. Logistic Regression provided a strong and interpretable baseline, the Decision Tree captured non-linear relationships, and the Random Forest classifier achieved the best overall performance with the most balanced predictions and lowest classification errors. 
 
-## Reproducibility
-All data preprocessing steps can be reproduced by running `main.py`. The pipeline starts from the raw dataset and generates the cleaned dataset automatically.
+Overall, the project demonstrates that combining exploratory analysis with machine learning models can provide reliable insights and accurate predictions for loan approval decisions.
 
 ---
 
 ## How to Run the Project
-1. Install dependencies:
-2. Run the main script:
-3. Processed data and generated outputs will be saved to their respective directories.
 
+This section explains how to set up and execute the full project pipeline.
 
-## Exploratory Data Analysis (EDA)
+### Usage Example
 
-As an initial step, we performed a basic exploratory data analysis to understand the structure and distribution of the dataset before modeling.
+After running the project, you can find:
+- Cleaned data in `data/processed/loan_data_processed.csv`
+- All visualizations in `reports/figures/`
+- Model results in `reports/Results/`
 
-The analysis focuses on:
-- The distribution of loan approval outcomes
-- The distribution of total household income
-- The distribution of loan amounts
+Example use case:
+- A bank analyst can use the trained models to estimate whether a new loan application is likely to be approved.
+- The exploratory analysis can help understand which applicant characteristics are most important for approval decisions.
 
-These visualizations help identify class balance, variable scale, and overall data characteristics, ensuring that subsequent modeling steps are interpreted in the correct context.
+---
 
-All figures generated during EDA are saved in the `reports/figures/` directory.
+## Key Findings and Insights
 
+The analysis reveals several important patterns that explain how loan approval decisions are made.
 
+Total household income is one of the strongest predictors of loan approval. Applicants with higher combined income not only request larger loan amounts but also show consistently higher approval rates, indicating that income level is a key indicator of repayment capacity.
 
-Key Insights from Exploratory Data Analysis
-1. Loan Approval Distribution
+The presence of a coapplicant positively affects approval outcomes. Applications that include a coapplicant have a higher number of approved loans, suggesting that shared financial responsibility reduces perceived risk for lenders.
 
-Approved loans significantly outnumber rejected ones, indicating a class imbalance.
+Loan characteristics also influence approval decisions. While moderate loan amounts and standard loan terms are more likely to be approved, very large loan amounts and longer repayment terms show lower approval rates. This reflects higher risk associated with long-term exposure and large credit amounts.
 
-This imbalance must be considered during model evaluation to avoid misleading accuracy results.
+Demographic factors contribute additional differences. Applicants with higher education levels tend to have better approval outcomes, and property area plays a role, with semiurban applicants showing higher approval rates compared to rural and urban areas. These patterns may reflect differences in income stability and economic conditions.
 
-Modeling implication:
-Use metrics such as precision, recall, or ROC-AUC rather than accuracy alone.
+From a modeling perspective, the Random Forest classifier delivers the strongest performance among all tested models. Its superior results indicate that ensemble methods are better at capturing complex interactions between income, loan characteristics, and demographic variables compared to simpler models like Logistic Regression and single Decision Trees.
 
-2. Household Income Effects
+Overall, the findings are consistent with real-world lending logic, where financial strength, shared responsibility, and risk-related loan features collectively shape approval decisions.
 
-Total household income is right-skewed, with most applicants concentrated in mid-income ranges.
+---
 
-Approval rates increase slightly with income but do not increase consistently across all ranges.
+## Limitations and Future Improvements
 
-Higher income improves approval chances but does not guarantee approval.
+This project has some limitations:
+- The dataset size is relatively small, which may limit model generalization.
+- Only basic feature engineering is applied.
+- Hyperparameter tuning is minimal.
 
-Modeling implication:
-Income is an important predictor, but its effect is non-linear and should be combined with other variables.
+Possible future improvements include:
+- Performing cross-validation and hyperparameter tuning
+- Adding more advanced models such as Gradient Boosting or XGBoost
+- Including additional financial and credit history features
+- Testing the model on external datasets
 
-3. Loan Amount as a Risk Indicator
+---
 
-Loan amounts show a concentrated core with a long tail of large loans.
+## Conclusion
 
-Larger loan amounts are associated with higher rejection rates, even after normalizing to percentages.
+This project demonstrates a complete data science workflow from raw data to machine learning predictions.
 
-The effect of loan size on rejection is stronger than the effect of income on approval.
+Through exploratory data analysis, key factors affecting loan approval were identified. Machine learning models were then trained to predict approval outcomes, with Random Forest achieving the best performance.
 
-Modeling implication:
-Loan amount is a strong risk signal and should be prioritized as a core feature.
-
-4. Relationship Between Income and Loan Amount
-
-There is a clear positive relationship between household income and requested loan amount.
-
-However, some applicants request large loans despite only moderate income levels, increasing rejection risk.
-
-Modeling implication:
-Interactions between income and loan amount (e.g., loan-to-income ratio) are likely informative.
-
-5. Loan Term Patterns
-
-Most applications use standard long-term loans (e.g., 360 months).
-
-Approval rates vary by loan term, but rare terms show unstable patterns due to small sample sizes.
-
-Modeling implication:
-Loan term is useful but should be handled carefully to avoid noise from infrequent categories.
-
-6. Demographic and Structural Factors
-
-Graduates show higher approval rates than non-graduates, though the difference is moderate.
-
-Semiurban properties have the highest approval rates, followed by urban and rural.
-
-Applications with a coapplicant show stronger approval outcomes.
-
-Modeling implication:
-Demographic and structural variables add value but act as secondary drivers compared to financial features.
-
-7. Outliers and Edge Cases
-
-Extreme income and loan values are present but appear to be valid observations, not errors.
-
-These cases likely represent high-income or high-risk applicants.
-
-Modeling implication:
-Capping extreme values is preferable to removing them, preserving information while reducing distortion.
-
-Summary for Modeling
-
-Primary drivers: Credit history, loan amount, household income
-
-Secondary drivers: Education, property area, loan term, coapplicant presence
-
-The EDA indicates that loan approval decisions are primarily driven by financial risk factors, while demographic variables provide supporting context. These insights guide feature selection, engineering, and model choice in later phases.
-
-
+Overall, the project shows how data analysis and machine learning can support decision-making in financial services.
 

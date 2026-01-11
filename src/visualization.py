@@ -23,6 +23,8 @@ GRID_ALPHA = 0.3
 
 # Basic data analysis
 
+# Question: What are the basic characteristics of the dataset?
+
 # Bar chart showing how many loan applications were approved or rejected
 # This helps us understand the overall balance between approved and rejected loans
 def plot_loan_status_distribution(df: pd.DataFrame, output_dir: str) -> None:
@@ -154,6 +156,8 @@ def run_basic_data(df: pd.DataFrame, output_dir: str) -> None:
 
 
 # Financial driver analysis
+
+# Question: Does total household income influence loan size and approval outcome?
 
 # Scatter plot showing the relationship between total household income and the requested loan amount for each application
 # This helps us understand whether higher income applicants tend to request larger loans
@@ -346,6 +350,8 @@ def run_financial_driver_data(df: pd.DataFrame, output_dir: str) -> None:
 
 # Support Structure Analysis
 
+# Question: Does having a coapplicant improve loan approval chances?
+
 # Grouped bar chart showing the number of approved and rejected loan applications for applicants with and without a coapplicant
 # This helps us understand whether having a coapplicant affects loan approval outcomes
 def plot_coapplicant_status_counts_grouped(df: pd.DataFrame, output_dir: str) -> None:
@@ -442,10 +448,18 @@ def run_support_structure_data(df: pd.DataFrame, output_dir: str) -> None:
 
 # Loan Term and Risk Structure
 
+# Question: Does loan term length affect approval decisions?
 
 # Bar chart showing the distribution of loan terms
 # This helps us understand which loan durations are most commonly requested  and whether applicants prefer short-term or long-term loans.
 def plot_loan_term_distribution(df: pd.DataFrame, output_dir: str) -> None:
+    """
+       Creates a bar chart showing how often each loan term appears in the dataset.
+
+       Parameters:
+            df (pd.DataFrame): Dataset containing loan term information.
+            output_dir (str): Directory where the plot will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -479,6 +493,13 @@ def plot_loan_term_distribution(df: pd.DataFrame, output_dir: str) -> None:
 # Bar chart showing the approval rate percentage for each loan term
 # This allows us to examine whether certain loan durations are associated with higher or lower approval rates
 def plot_approval_rate_by_loan_term(df: pd.DataFrame, output_dir: str) -> None:
+    """
+      Creates a bar chart showing the loan approval rate for each loan term.
+
+      Parameters:
+            df (pd.DataFrame): Dataset containing loan term and loan status data.
+            output_dir (str): Directory where the plot will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -528,8 +549,13 @@ def plot_approval_rate_by_loan_term(df: pd.DataFrame, output_dir: str) -> None:
 
 def run_loan_term_data(df: pd.DataFrame, output_dir: str) -> None:
     """
-    Run Loan Term and Risk Analysis
+    Runs all loan term and risk analysis plots.
+
+    Parameters:
+        df (pd.DataFrame): Dataset used for analysis.
+        output_dir (str): Base directory for saving plots.
     """
+
 
     print("Running loan term and risk analysis...")
 
@@ -548,10 +574,18 @@ def run_loan_term_data(df: pd.DataFrame, output_dir: str) -> None:
 
 # Demographic Pattern Analysis
 
+# Question: Do demographic characteristics play a secondary role compared to financial factors?
 
 # Bar chart showing the approval rates by education level.
 # This helps us understand whether education is associated with higher or lower chances of loan approval
 def plot_approval_rate_by_education(df: pd.DataFrame, output_dir: str) -> None:
+    """
+       Creates a bar chart showing loan approval rates by education level.
+
+       Parameters:
+            df (pd.DataFrame): Dataset containing education, income, and loan status data.
+            output_dir (str): Directory where the plot will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -600,6 +634,13 @@ def plot_approval_rate_by_education(df: pd.DataFrame, output_dir: str) -> None:
 # Bar chart showing the approval rate based on property area
 # This allows us to examine whether location (urban, semiurban, rural) is related to loan approval outcomes
 def plot_approval_rate_by_property_area(df: pd.DataFrame, output_dir: str) -> None:
+    """
+       Creates a bar chart showing loan approval rates by property area.
+
+       Parameters:
+            df (pd.DataFrame): Dataset containing property area, income, and loan status data.
+            output_dir (str): Directory where the plot will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -648,10 +689,14 @@ def plot_approval_rate_by_property_area(df: pd.DataFrame, output_dir: str) -> No
 
 # Pie chart showing gender distribution among approved loans only.
 # This helps us understand which gender groups are more represented among successful loan applications
-def plot_approved_loans_by_gender(
-    df: pd.DataFrame,
-    output_dir: str
-) -> None:
+def plot_approved_loans_by_gender(df: pd.DataFrame,output_dir: str) -> None:
+    """
+        Creates a pie chart showing the gender distribution of approved loans.
+
+        Parameters:
+            df (pd.DataFrame): Dataset containing gender and loan status data.
+            output_dir (str): Directory where the plot will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -690,10 +735,14 @@ def plot_approved_loans_by_gender(
 
 # Pie chart showing marital status distribution among approved loans
 # This shows whether married or unmarried applicants make up a larger share of approved loans
-def plot_approved_loans_by_marital_status(
-    df: pd.DataFrame,
-    output_dir: str
-) -> None:
+def plot_approved_loans_by_marital_status(df: pd.DataFrame, output_dir: str) -> None:
+    """
+       Creates a pie chart showing marital status distribution among approved loans.
+
+       Parameters:
+            df (pd.DataFrame): Dataset containing marital status and loan status data.
+            output_dir (str): Directory where the plot will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -729,17 +778,17 @@ def plot_approved_loans_by_marital_status(
 
 
 
-
 # Pie chart showing self-employment status among approved loans
 # This helps analyze whether self-employed applicants are well represented among approved loan cases
-def plot_approved_loans_by_self_employment(
-    df: pd.DataFrame,
-    output_dir: str
-) -> None:
+def plot_approved_loans_by_self_employment(df: pd.DataFrame, output_dir: str) -> None:
     """
-    Pie chart showing self-employment distribution among approved loans
-    using a green color palette.
+       Creates a pie chart showing self-employment status among approved loans.
+
+       Parameters:
+            df (pd.DataFrame): Dataset containing self-employment and loan status data.
+            output_dir (str): Directory where the plot will be saved.
     """
+
     os.makedirs(output_dir, exist_ok=True)
 
     approved_df = df[df["Loan_Status"] == "Y"]
@@ -778,8 +827,13 @@ def plot_approved_loans_by_self_employment(
 
 def demographic_patterns_data(df: pd.DataFrame, output_dir: str) -> None:
     """
-    Run Demographic Pattern Analysis
+        Runs all demographic pattern analysis plots.
+
+        Parameters:
+        df (pd.DataFrame): Dataset used for analysis.
+        output_dir (str): Base directory for saving plots.
     """
+
     print("Running demographic pattern analysis...")
 
     demographic_data_dir = os.path.join(output_dir, "Demographic Pattern Analysis")
@@ -799,9 +853,20 @@ def demographic_patterns_data(df: pd.DataFrame, output_dir: str) -> None:
 
 # Outliers Analysis
 
+# Question: Are there meaningful outliers, and how should they be interpreted?
+
 # Helper function to calculate lower and upper bounds for outlier detection using the interquartile range (IQR) rule
 # This method is commonly used to identify extreme values in numerical data
 def _iqr_bounds(series: pd.Series):
+    """
+     Calculates lower and upper bounds for outlier detection using the IQR method.
+
+     Parameters:
+        series (pd.Series): Numerical data series.
+
+     Returns:
+        tuple: Lower and upper bounds for outliers.
+     """
 
     q1 = series.quantile(0.25)
     q3 = series.quantile(0.75)
@@ -814,7 +879,14 @@ def _iqr_bounds(series: pd.Series):
 # Combined boxplot for multiple numerical variables
 # This allows us to compare distributions and spot outliers across income-related variables and loan amount in one view
 def plot_boxplot_for_columns(df: pd.DataFrame, columns: list, output_dir: str) -> None:
+    """
+       Creates a combined boxplot for multiple numerical columns.
 
+       Parameters:
+            df (pd.DataFrame): Dataset containing numerical variables.
+            columns (list): List of column names to plot.
+            output_dir (str): Directory where the plot will be saved.
+    """
     os.makedirs(output_dir, exist_ok=True)
 
     # Ensure columns exist
@@ -842,6 +914,14 @@ def plot_boxplot_for_columns(df: pd.DataFrame, columns: list, output_dir: str) -
 # Creating individual boxplots for each variable.
 # This makes it easier to closely inspect outliers for each income-related variable and loan amount separately
 def plot_individual_boxplots(df: pd.DataFrame, columns: list, output_dir: str) -> None:
+    """
+        Creates individual boxplots for each selected numerical column.
+
+        Parameters:
+            df (pd.DataFrame): Dataset containing numerical variables.
+            columns (list): List of column names to plot.
+            output_dir (str): Directory where the plots will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -861,6 +941,14 @@ def plot_individual_boxplots(df: pd.DataFrame, columns: list, output_dir: str) -
 # Computing IQR bounds and count how many observations fall below and above the bounds for each variable.
 # The results are saved to a CSV file for reference
 def save_outlier_summary(df: pd.DataFrame, columns: list, output_dir: str) -> None:
+    """
+       Calculates outlier statistics for selected columns and saves them to a CSV file.
+
+       Parameters:
+            df (pd.DataFrame): Dataset containing numerical variables.
+            columns (list): List of column names to analyze.
+            output_dir (str): Directory where the CSV file will be saved.
+    """
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -893,6 +981,13 @@ def save_outlier_summary(df: pd.DataFrame, columns: list, output_dir: str) -> No
 
 
 def run_outliers_data(df: pd.DataFrame, output_dir: str) -> None:
+    """
+       Runs all outlier analysis steps and saves plots and summary files.
+
+       Parameters:
+            df (pd.DataFrame): Dataset used for analysis.
+            output_dir (str): Base directory for saving outputs.
+    """
 
     print("Running Outliers Analysis...")
 
@@ -911,13 +1006,15 @@ def run_outliers_data(df: pd.DataFrame, output_dir: str) -> None:
 
 # Heatmap showing correlations between numerical variables and loan approval
 # This helps identify which variables move together and which features may be strongly related to loan approval
-def plot_correlation_heatmap(
-    df: pd.DataFrame,
-    output_dir: str
-) -> None:
+def plot_correlation_heatmap(df: pd.DataFrame, output_dir: str) -> None:
     """
-    Correlation heatmap of numerical features and loan approval.
+       Creates a correlation heatmap for numerical features and loan approval.
+
+       Parameters:
+            df (pd.DataFrame): Dataset containing numerical features and loan status.
+            output_dir (str): Directory where the heatmap will be saved.
     """
+
     os.makedirs(output_dir, exist_ok=True)
 
     df = df.copy()
@@ -958,6 +1055,13 @@ def plot_correlation_heatmap(
 
 
 def run_heatmap_data(df: pd.DataFrame, output_dir: str) -> None:
+    """
+        Runs correlation heatmap analysis.
+
+        Parameters:
+            df (pd.DataFrame): Dataset used for analysis.
+            output_dir (str): Base directory for saving outputs.
+    """
 
     print("Running Correlation Heatmap Analysis...")
 
