@@ -340,10 +340,7 @@ def run_support_structure_data(df: pd.DataFrame, output_dir: str) -> None:
 
 
 
-# Loan Term/Risk Structure
-# - Loan term distribution (counts)
-# - Approval rate by loan term (percentage)
-# Both functions assume clean data (no NA handling) and rely on _is_approved.
+# Loan Term and Risk Structure
 
 
 # Bar chart showing the distribution of loan terms
@@ -554,10 +551,13 @@ def demographic_patterns_data(df: pd.DataFrame, output_dir: str) -> None:
 
     print("Demographic Pattern Analysis completed. Figures saved to:", demographic_data_dir)
 
+
+
+# Outliers Analysis
+
+# Returns lower and upper bounds using the IQR rule
 def _iqr_bounds(series: pd.Series):
-    """
-    Return lower and upper bounds using the IQR rule.
-    """
+
     q1 = series.quantile(0.25)
     q3 = series.quantile(0.75)
     iqr = q3 - q1
@@ -565,11 +565,10 @@ def _iqr_bounds(series: pd.Series):
     upper = q3 + 1.5 * iqr
     return lower, upper
 
+
+# Combined boxplot for the provided columns
 def plot_boxplot_for_columns(df: pd.DataFrame, columns: list, output_dir: str) -> None:
-    """
-    Create one combined boxplot figure for the provided columns.
-    Saves: outliers_boxplots.png
-    """
+
     os.makedirs(output_dir, exist_ok=True)
 
     # Ensure columns exist
@@ -593,11 +592,10 @@ def plot_boxplot_for_columns(df: pd.DataFrame, columns: list, output_dir: str) -
     plt.savefig(os.path.join(output_dir, "outliers_boxplots.png"))
     plt.close()
 
+
+# Creating one simple boxplot per variable and save separately for inspection.
 def plot_individual_boxplots(df: pd.DataFrame, columns: list, output_dir: str) -> None:
-    """
-    Create one simple boxplot per variable and save separately for inspection.
-    Saves: outlier_box_<column>.png for each column.
-    """
+
     os.makedirs(output_dir, exist_ok=True)
 
     for col in columns:
@@ -611,11 +609,11 @@ def plot_individual_boxplots(df: pd.DataFrame, columns: list, output_dir: str) -
         plt.savefig(os.path.join(output_dir, filename))
         plt.close()
 
+
+
+# Computing IQR bounds and counting of points below/above bounds for each column.
 def save_outlier_summary(df: pd.DataFrame, columns: list, output_dir: str) -> None:
-    """
-    Compute IQR bounds and counts of points below/above bounds for each column.
-    Save a CSV summary as outliers_summary.csv.
-    """
+
     os.makedirs(output_dir, exist_ok=True)
 
     rows = []
@@ -639,22 +637,24 @@ def save_outlier_summary(df: pd.DataFrame, columns: list, output_dir: str) -> No
     summary = pd.DataFrame(rows)
     summary.to_csv(os.path.join(output_dir, "outliers_summary.csv"), index=False)
 
-def run_phase6_outliers(df: pd.DataFrame, output_dir: str) -> None:
+
+
+def run_outliers_data(df: pd.DataFrame, output_dir: str) -> None:
     """
-    Runner for Phase 6 — Outliers and Edge Cases.
+    Run Outliers Analysis
     Produces:
       - outliers_boxplots.png (combined)
       - outlier_box_<column>.png (individual)
       - outliers_summary.csv (IQR bounds and counts)
     """
-    print("Running Phase 6 — Outliers and Edge Cases...")
+    print("Running Outliers Analysis...")
 
     cols = ["ApplicantIncome", "CoapplicantIncome", "TotalIncome", "LoanAmount"]
 
-    phase6_dir = os.path.join(output_dir, "phase6 outliers")
+    outliers_dir = os.path.join(output_dir, "Outliers Analysis")
 
-    plot_boxplot_for_columns(df, cols, phase6_dir)
-    plot_individual_boxplots(df, cols, phase6_dir)
-    save_outlier_summary(df, cols, phase6_dir)
+    plot_boxplot_for_columns(df, cols, outliers_dir)
+    plot_individual_boxplots(df, cols, outliers_dir)
+    save_outlier_summary(df, cols, outliers_dir)
 
-    print("Phase 6 outputs saved to:", output_dir)
+    print("Outliers Analysis completed. Figures saved to:", outliers_dir)

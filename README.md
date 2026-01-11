@@ -137,3 +137,86 @@ The analysis focuses on:
 These visualizations help identify class balance, variable scale, and overall data characteristics, ensuring that subsequent modeling steps are interpreted in the correct context.
 
 All figures generated during EDA are saved in the `reports/figures/` directory.
+
+
+
+Key Insights from Exploratory Data Analysis
+1. Loan Approval Distribution
+
+Approved loans significantly outnumber rejected ones, indicating a class imbalance.
+
+This imbalance must be considered during model evaluation to avoid misleading accuracy results.
+
+Modeling implication:
+Use metrics such as precision, recall, or ROC-AUC rather than accuracy alone.
+
+2. Household Income Effects
+
+Total household income is right-skewed, with most applicants concentrated in mid-income ranges.
+
+Approval rates increase slightly with income but do not increase consistently across all ranges.
+
+Higher income improves approval chances but does not guarantee approval.
+
+Modeling implication:
+Income is an important predictor, but its effect is non-linear and should be combined with other variables.
+
+3. Loan Amount as a Risk Indicator
+
+Loan amounts show a concentrated core with a long tail of large loans.
+
+Larger loan amounts are associated with higher rejection rates, even after normalizing to percentages.
+
+The effect of loan size on rejection is stronger than the effect of income on approval.
+
+Modeling implication:
+Loan amount is a strong risk signal and should be prioritized as a core feature.
+
+4. Relationship Between Income and Loan Amount
+
+There is a clear positive relationship between household income and requested loan amount.
+
+However, some applicants request large loans despite only moderate income levels, increasing rejection risk.
+
+Modeling implication:
+Interactions between income and loan amount (e.g., loan-to-income ratio) are likely informative.
+
+5. Loan Term Patterns
+
+Most applications use standard long-term loans (e.g., 360 months).
+
+Approval rates vary by loan term, but rare terms show unstable patterns due to small sample sizes.
+
+Modeling implication:
+Loan term is useful but should be handled carefully to avoid noise from infrequent categories.
+
+6. Demographic and Structural Factors
+
+Graduates show higher approval rates than non-graduates, though the difference is moderate.
+
+Semiurban properties have the highest approval rates, followed by urban and rural.
+
+Applications with a coapplicant show stronger approval outcomes.
+
+Modeling implication:
+Demographic and structural variables add value but act as secondary drivers compared to financial features.
+
+7. Outliers and Edge Cases
+
+Extreme income and loan values are present but appear to be valid observations, not errors.
+
+These cases likely represent high-income or high-risk applicants.
+
+Modeling implication:
+Capping extreme values is preferable to removing them, preserving information while reducing distortion.
+
+Summary for Modeling
+
+Primary drivers: Credit history, loan amount, household income
+
+Secondary drivers: Education, property area, loan term, coapplicant presence
+
+The EDA indicates that loan approval decisions are primarily driven by financial risk factors, while demographic variables provide supporting context. These insights guide feature selection, engineering, and model choice in later phases.
+
+
+
