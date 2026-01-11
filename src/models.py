@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -222,7 +223,7 @@ def train_decision_tree(
     }, index=y_test.index)
     preds_df.to_csv(outdir / "test_predictions.csv", index=True)
 
-    # 😎 Save confusion matrix image
+    # 8) Save confusion matrix image
     _save_confusion_matrix_png(cm, str(outdir / "confusion_matrix.png"))
 
     print("Decision Tree training finished.")
@@ -252,3 +253,105 @@ def _prepare_features(df: pd.DataFrame) -> pd.DataFrame:
         X = pd.get_dummies(X, columns=categorical_cols, drop_first=True)
 
     return X
+
+
+# --- New: Random Forest model (added at bottom, does not change any existing functions) ---
+def train_random_forest(
+    processed_csv_path: str = "data/processed/loan_data_processed.csv",
+    output_dir: str = "artifacts/random_forest",
+    test_size: float = 0.2,
+    random_state: int = 42,
+    n_estimators: int = 100,
+    max_depth: int = None,
+):
+    """
+    Train a simple Random Forest classifier.
+
+    Keeps everything beginner-friendly and consistent with the other trainers:
+    - One-hot encode categoricals using pandas.get_dummies
+    - No special scaling (tree-based model)
+    - Compute Accuracy, Precision, Recall, F1, Confusion Matrix
+    - Save model and artifacts:
+      - random_forest_model.joblib
+      - metrics.json
+      - classification_report.txt
+      - confusion_matrix.png
+      - test_predictions.csv
+    """
+    outdir = Path(output_dir)
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    # 1) Load processed data
+    df = pd.read_csv(processed_csv_path)
+
+    if "Loan_Status" not in df.columns:
+        raise KeyError("Loan_Status column not found in processed dataset.")
+
+    # 2) Target encoding (Y -> 1)
+    y = _binary_target(df["Loan_Status"])
+
+    # 3) Features: same simple preparation
+    X = _prepare_features(df)
+
+    # 4) Train/test split (stratify to keep class balance)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=random_state, stratify=y
+    )
+
+    # 5) Train Random Forest
+    rf = RandomForestClassifier(
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        random_state=random_state,
+        n_jobs=-1
+    )
+    rf.fit(X_train, y_train)
+
+    # 6) Predict & evaluate
+    y_pred = rf.predict(X_test)
+
+    accuracy = float(accuracy_score(y_test, y_pred))
+    precision = float(precision_score(y_test, y_pred, zero_division=0))
+    recall = float(recall_score(y_test, y_pred, zero_division=0))
+    f1 = float(f1_score(y_test, y_pred, zero_division=0))
+    cm = confusion_matrix(y_test, y_pred)
+
+    metrics = {
+        "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+        "confusion_matrix": cm.tolist(),
+    }
+
+    # 7) Save model and artifacts
+    artifact = {
+        "model": rf,
+        "feature_columns": X.columns.tolist(),
+    }
+    joblib.dump(artifact, outdir / "random_forest_model.joblib")
+
+    with open(outdir / "metrics.json", "w") as f:
+        json.dump(metrics, f, indent=2)
+
+    with open(outdir / "classification_report.txt", "w") as f:
+        f.write(classification_report(y_test, y_pred, zero_division=0))
+
+    preds_df = pd.DataFrame({
+        "y_true": y_test.values,
+        "y_pred": y_pred,
+    }, index=y_test.index)
+    preds_df.to_csv(outdir / "test_predictions.csv", index=True)
+
+    # 8) Save confusion matrix image (counts)
+    _save_confusion_matrix_png(cm, str(outdir / "confusion_matrix.png"))
+
+    print("Random Forest training finished.")
+    print("Saved model and artifacts to:", outdir)
+    print("Metrics:", metrics)
+
+    return {
+        "model": rf,
+        "metrics": metrics,
+        "feature_columns": X.columns.tolist(),
+    }
