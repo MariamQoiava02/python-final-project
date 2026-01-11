@@ -1,14 +1,17 @@
 """
 Visualization
+This file contains all functions related to data visualization
+Each function creates a plot and saves it to a file
 """
 
+# Importing libraries
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-# Styles
+# Styles to be used in the whole project
 plt.style.use("seaborn-v0_8-whitegrid")
 
 BAR_COLOR = "#9BCF9B"      # light green
@@ -21,25 +24,29 @@ GRID_ALPHA = 0.3
 # Basic data analysis
 
 # Bar chart showing how many loan applications were approved or rejected
+# This helps us understand the overall balance between approved and rejected loans
 def plot_loan_status_distribution(df: pd.DataFrame, output_dir: str) -> None:
 
+    # Creating output directory if it does not exist
     os.makedirs(output_dir, exist_ok=True)
 
-    plt.figure(figsize=(7, 5))
+    plt.figure(figsize=(7, 5))  # Creating the figure
     ax = df["Loan_Status"].value_counts().plot(
         kind="bar",
         color=BAR_COLOR,
         edgecolor="black"
-    )
+    )  # Plot count of approved and rejected loans
 
-    # Change x-axis labels from Y/N to Yes/No
+    # Changing x-axis labels from Y/N to Yes/No
     ax.set_xticklabels(["Yes", "No"], rotation=0)
 
+    # Adding titles and axis labels to improve readability
     plt.title("Loan Approval Distribution", fontsize=14, pad=12)
     plt.xlabel("Loan Status", fontsize=11)
     plt.ylabel("Number of Applications", fontsize=11)
     plt.grid(axis="y", alpha=GRID_ALPHA)
 
+    # Adjusting layouts and saving the figure
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, "loan_status_distribution.png"))
     plt.close()
@@ -48,6 +55,7 @@ def plot_loan_status_distribution(df: pd.DataFrame, output_dir: str) -> None:
 
 
 # Histogram showing how total household income is distributed across all loan applicants
+# This helps us identify income ranges and possible outliers in the data
 def plot_total_income_distribution(df: pd.DataFrame, output_dir: str) -> None:
 
     os.makedirs(output_dir, exist_ok=True)
@@ -74,6 +82,7 @@ def plot_total_income_distribution(df: pd.DataFrame, output_dir: str) -> None:
 
 
 # Histogram showing how requested loan amounts are distributed across all loan applications
+# This allows us to see common loan sizes and detect extreme values
 def plot_loan_amount_distribution(df: pd.DataFrame, output_dir: str) -> None:
 
     os.makedirs(output_dir, exist_ok=True)
@@ -97,7 +106,8 @@ def plot_loan_amount_distribution(df: pd.DataFrame, output_dir: str) -> None:
 
 
 
-
+# Function to run all basic distribution plots together
+# This makes it easier to generate all basic visualizations at once
 def run_basic_data(df: pd.DataFrame, output_dir: str) -> None:
     """
     Run basic data analysis focused on distributions only.
@@ -105,8 +115,9 @@ def run_basic_data(df: pd.DataFrame, output_dir: str) -> None:
 
     print("Running basic data analysis...")
 
-    basic_data_dir = os.path.join(output_dir, "Basic Data Analysis")
+    basic_data_dir = os.path.join(output_dir, "Basic Data Analysis") # Creating a subfolder for basic data analysis outputs
 
+    # Generate all basic distribution plots
     plot_loan_status_distribution(df, basic_data_dir)
     plot_total_income_distribution(df, basic_data_dir)
     plot_loan_amount_distribution(df, basic_data_dir)
@@ -120,6 +131,7 @@ def run_basic_data(df: pd.DataFrame, output_dir: str) -> None:
 # Financial driver analysis
 
 # Scatter plot showing the relationship between total household income and the requested loan amount for each application
+# This helps us understand whether higher income applicants tend to request larger loans
 def plot_income_vs_loan_amount(df: pd.DataFrame, output_dir: str) -> None:
 
     os.makedirs(output_dir, exist_ok=True)
