@@ -155,14 +155,19 @@ def plot_income_vs_loan_amount(df: pd.DataFrame, output_dir: str) -> None:
 
 
 
-# Grouping applicants by income level and plotting the loan approval rate for each income group using a line chart
+# Grouping applicants by income level and plotting the loan approval rate for each income group
+# Income groups are created using quantiles so that each group has a similar number of applicants
+# This allows us to see whether approval probability changes with income level
 def plot_approval_rate_by_income_group(df: pd.DataFrame, output_dir: str) -> None:
 
     os.makedirs(output_dir, exist_ok=True)
 
     df = df.copy()
+
+    # Converting loan status into binary values (1 = approved, 0 = rejected)
+    # This makes it easier to calculate approval rates
     df["Approved"] = (df["Loan_Status"] == "Y").astype(int)
-    df["Income_Group"] = pd.qcut(df["TotalIncome"], q=5)
+    df["Income_Group"] = pd.qcut(df["TotalIncome"], q=5)  # Divide applicants into 5 income groups based on total household income
 
     approval_rate = (
         df.groupby("Income_Group", observed=True)["Approved"]
